@@ -191,13 +191,57 @@ Para concluir ignorabilidad buscamos que $L\left(\theta \given Y_{obs}, \boldsym
 \newpage
 % Problema 8
 \begin{soln}
-
+Dado que $a>0$, se tiene que
+\[
+\min(y)\coloneqq \min_{1\leq i\leq n} y_i=\min_{1\leq i\leq n}(ax_i+b) = b+\min_{1\leq i\leq n}(ax_i) = b+a\min_{1\leq i\leq n} x_i = a\min(x)+b.
+\]
+De manera análoga,
+\[
+\max(y)\coloneqq \max_{1\leq i\leq n} y_i=\max_{1\leq i\leq n}(ax_i+b) = b+\max_{1\leq i\leq n}(ax_i) = b+a\max_{1\leq i\leq n} x_i =a\max(x)+b.
+\]
+Por consiguiente, para todo $i\in \left\lbrace 1, \ldots, n \right\rbrace$, se tiene que
+\[
+y_i^* = \frac{y_i-\min(y)}{\max(y)-\min(y)} = \frac{\left(ax_i+b\right)-\left(a\min(x)+b\right)}{\left(a\max(x)+b\right)-\left(a\min(x)+b\right)} = \frac{a\left(x_i-\min(x)\right)}{a\left(\max(x)-\min(x)\right)} = x_i^*,
+\]
+que es lo deseado.
 \end{soln}
 
 \newpage
 % Problema 9
 \begin{soln}
+(a) Como el soporte de $X$ es $[x_m, \infty)$, con $x_m>0$, la transformación $Y=\log(X)$ está bien definida, y $Y$ tiene soporte en $[\log(x_m), \infty)$. Además, la función $g(x)=\log(x)$ definida en $\RR^{+}$ es uno a uno y tiene inversa $g^{-1}(y)=e^y$, la cual es una función derivable, con $\frac{d}{dy}{g^{-1}}(y)=e^y$. Por lo tanto, como se cumple la relación $Y=\log(X)$ y por consiguiente $X=e^Y$, por el Teorema de Cambio de Variables $Y$ tiene densidad dada por
+\[
+f_Y(y) = \left\lvert \frac{dx}{dy} \right\rvert f_X(e^y) \mathds{1}_{[\log(x_m), \infty)}(y) = e^y \frac{\alpha x_m^{\alpha}}{e^{y(\alpha+1)}}\mathds{1}_{[\log(x_m), \infty)}(y) = \alpha {\left(\frac{x_m}{e^y}\right)}^\alpha \mathds{1}_{[\log(x_m), \infty)}(y).
+\]
+Notemos que esta última expresión puede ser escrita como
+\[
+f_Y(y) = \alpha e^{-\alpha \left(y-\log(x_m)\right)}\mathds{1}_{[0, \infty)}(y-\log(x_m)),
+\]
+de donde se puede observar que $Y \stackrel{d}{=} \log(x_m)+Exp(\alpha)$, en donde $Exp(\alpha)$ es una variable aleatoria con distribución exponencial de media $\frac{1}{\alpha}$. En particular, de aquí se sigue que la función de distribución acumulada de $Y$ es
+\[
+F_Y(y) = \begin{cases}
+  0, & \text{si } y<\log(x_m),\\
+  1-e^{-\alpha(y-\log(x_m))}, & \text{si } y\geq \log(x_m).
+\end{cases}
+\]
 
+(b) Primero veamos que, dado $x>x_m$,
+\[
+\probability{X\geq x} = \int_{x}^{\infty} \frac{\alpha x_m^{\alpha}}{t^{\alpha+1}} dt = x_m^{\alpha} {\left[-t^{-\alpha}\right]}_{t=x}^{\infty} = {\left(\frac{x_m}{x}\right)}^{\alpha}.
+\]
+De este modo, la cola de $X$ decae de forma polinomial, del orden $x^{-\alpha}$. Por otro lado, si $y>\log(x_m)$,
+\[
+\probability{Y\geq y} = e^{\alpha \log(x_m)}e^{-\alpha y} = x_m^{\alpha} e^{-\alpha y},
+\]
+de donde podemos ver que la cola de $Y$ decae de forma polinomial, del orden $e^{-\alpha y}$ (más rápidamente que el decaimiento polinomial). Es decir, $X$ tiene colas más pesadas, y al transformarse a $Y$, cambia a colas más ligeras.
+
+(c) Notemos que, como $Y=\log(X)$, para todo $y\in\RR$ se cumple que
+\[
+\probability{Y>y} = \probability{X>e^y},
+\]
+de modo que, como $e^y$ crece más rápido que $y$, las colas de $Y$ decaen más rápidamente de las de $X$, como lo visto con la distribución Pareto, en donde un decaimiento polinomial se convierte en uno exponencial. Además, como la función logaritmo es creciente y $\log(x)\leq \log(x+1)\leq x$ para todo $x>0$, por lo general $Y$ tiene un soporte más grande que $X$.
+
+Más aún, por las propiedades de la función logarítmica, los cambios grandes en $X$ se reflejan en cambios más chicos de $Y$. Por ejemplo, si un valor de $X$ se duplica, en la transformación logarítmica el valor de $Y$ solo incrementa en $\log 2$ (cambios multiplicativos se transforman en cambios aditivos). Por consiguiente, si $X$ tiene colas muy pesadas, $Y$ tiende a distribuir el peso a lo largo de los reales y no tan concentrado en las colas; es decir, se ``acortan'' las colas largas. Además esto produce, por lo general, distribuciones más cercanas a la simetría, en especial cuando hay errores multiplicativos, que se convierten en errores aditivos al aplicar logaritmo, y el Teorema del Límite Central explica dicha simetría.
 \end{soln}
 
 \newpage
@@ -209,7 +253,23 @@ Para concluir ignorabilidad buscamos que $L\left(\theta \given Y_{obs}, \boldsym
 \newpage
 % Problema 11
 \begin{soln}
+(a) Sea $x>0$, y veamos que
+\[
+\lim_{\lambda\to 0} (x^{\lambda}-1) = 1-1=0,
+\]
+mientras que $\lim_{\lambda\to 0} \lambda = 0$. Además, la función $\lambda \mapsto \lambda$ es derivable, con derivada igual a $1(\neq 0)$. Por lo tanto, ya que el siguiente límite existe, por la Regla de l'Hôpital se tiene que
+\[
+\log(x) = \lim_{\lambda\to 0} \frac{\log(x) x^\lambda}{1} = \lim_{\lambda\to 0} \frac{x^{\lambda}-1}{\lambda}=\lim_{\lambda\to 0} y(\lambda).
+\]
 
+(b) Consideremos a la sucesión ${(x_n)}_{n\in\NN}$, en donde $x_n = 2^n$ para todo $n\in\NN$. Dicha sucesión toma valores muy dispersos cuando $n$ es muy grande, pues sus primeros valores son
+\[
+2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144, \ldots.
+\]
+La sucesión correpondiente a la transformación de Box y Cox con $\lambda=1$ es la misma pero recorrida en $1$, así que sigue siendo igual de dispersa. Sin embargo, con la transformación logarítmica ($\lambda=0$), se convierte en ${(y_n)}_{n\in\NN}$, en donde $y_n = n\log(2)$ para todo $n\in\NN$, que es mucho menos dispersa. A manera de ilustración, sus primeros valores son aproximadamente iguales a:
+\[
+0.6931, 1.3863, 2.0794, 2.7726, 3.4657, 4.1589, 4.852, 5.5452, 6.2383, 6.9315, 7.6246, 8.3178, 9.0109, \ldots
+\]
 \end{soln}
 
 \newpage

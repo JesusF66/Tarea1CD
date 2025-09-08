@@ -1,6 +1,21 @@
 *.aux
+<<<<<<< HEAD
 *.log
 *.pdf
 *.synctex.gz
 *.out
 texput.log
+=======
+*.bbl
+*.blg
+*.brf
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.nav
+*.snm
+*.vrb
+>>>>>>> 09a41d1bb127ad29880e3a3874fb5e59ff5fc7b8

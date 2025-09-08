@@ -64,20 +64,90 @@
 \maketitle
 
 % Problema 1
-\begin{soln}
 
+\begin{soln}
 \end{soln}
+
 
 \newpage
 % Problema 2
 \begin{soln}
-
+Considere el modelo de regresión lineal $\boldsymbol{Y}=X\boldsymbol{\beta} + \boldsymbol{\varepsilon}$ donde $\boldsymbol{\varepsilon}\sim N_n(\boldsymbol{0},\sigma^2I).$ Del ejercicio anterior se sabe que la matriz 
+    $$
+    H=X(X^TX)^{-1}X^T,
+    $$
+    es una matriz de proyección ortogonal. Usando la descomposición espectral, se puede descomponer a $H$ de la forma 
+    $$H=RR^T,$$
+    basta con reescribir a la matriz diagonal como el producto de dos matrices donde cada matriz tiene en su diagonal a la raíz cuadrada de cada elemento. Por otro lado, observe que ya que $H$ es idempotente se tiene que
+    $$
+    H^2=(RR^T)(RR^T)=H=RR^T,
+    $$
+    por lo que $$R^TR=I_p.$$ 
+    Por otro lado, note que por la propiedad cíclica de la traza
+    $$
+    tr(H)=tr(RR^T)=tr(R^TR)=tr(I_p)=p.
+    $$
+    Por lo tanto, $$
+\sum_{i=1}^n h_{i i}=p.
+$$
 \end{soln}
 
 \newpage
 % Problema 3
 \begin{soln}
+ Considere el modelo de regresión lineal clásico, $\boldsymbol{Y}=X\boldsymbol{\beta} + \boldsymbol{\varepsilon}$ donde $\boldsymbol{\varepsilon}\sim N_n(\boldsymbol{0},\sigma^2I)$ y a la matriz de proyección ortogonal,
+    $$
+    H=X(X^TX)^{-1}X^T.
+    $$
+ Se sabe que el vector de residuos se puede expresa como 
+ $$
+ \boldsymbol{e}=(I-H)\boldsymbol{Y},
+ $$
+luego ya que $\boldsymbol{Y}$ sigue una distribución normal multivariada con media $X\boldsymbol{\beta}$ y varianza $\sigma^2 I_n$, se tiene que, 
+$$
+\boldsymbol{e}\sim N_n\left(\mathbf{0}, \sigma^2\left(I_n-H\right)\right).
+$$
+De lo anterior, se tiene que 
+$$
+e_i \sim N(0,\sigma^2 (1-h_{ii}).
+$$
+y normalizando,
+$$
+\frac{e_i}{\sigma\sqrt{1-h_{ii}}}\sim N(0,1)
+$$
+Por otro lado, observe que si se considera a el estimador insesgado de la varianza,
+$$\hat{\sigma}^2=\frac{\mathbf{e}^{\top} \mathbf{e}}{n-p}=\frac{\sigma^2 \mathbf{Y}^{\top}(I-H) \mathbf{Y}}{\sigma^2 (n-p)},$$
+y se observa que $(I-H)$ es una matriz idempotente de rango $n-p$ se tiene que 
+$$
+\frac{(n-p)}{\sigma^2}\hat{\sigma}^2= \frac{ \mathbf{Y}^{\top}(I-H) \mathbf{Y}}{\sigma^2} \sim \chi^2(n-p).
+$$
+Por ultimo, se sabe que una variable aleatoria t de Student con r grados de libertad se define como la razón entre una variable aleatoria normal estándar sobre la raiz cuadrada de una variable chi cuadrada dividida entre sus r grados, con las variables aleatorias independientes. Ya que en este caso la normal estandar no es independiente de la chi cuadra se tiene que la siguiente variable aleatoria cumple que aproximadamente,
 
+$$
+\frac{\frac{e_i}{\sigma\sqrt{1-h_{ii}}}}{\sqrt{\frac{(n-p)}{(n-p)\sigma^2}\hat{\sigma}^2}} \sim t(n-p).
+$$
+Simplificando la expresión de la izquierda se tiene, 
+$$
+r_i=\frac{e_i}{\hat{\sigma} \sqrt{1-h_{i i}}} \sim t(n-p).
+$$
+Para arreglar el problema de la independencia se propone estimar a $\sigma^2$ sin usar el i-esimo dato, es decir
+
+$$
+\hat{\sigma}_{i}^2=\frac{\mathbf{e_i}^{\top} \mathbf{e_i}}{n-1-p}=\frac{\sigma^2 \mathbf{Y}_i^{\top}(I-H_i) \mathbf{Y_i}}{\sigma^2 (n-1-p)},
+$$
+donde el vector $\mathbf{Y}_i$ se obtiene eliminando al i-esima entrada y $H_i$ se construye eliminando la i-esíma entrada de $X.$ En este caso la matriz $(I-H_i)$ es idempotente de rango n-1-p, por lo que, 
+$$
+\frac{(n-1-p)}{\sigma^2}\hat{\sigma_i}^2= \frac{ \mathbf{Y_i}^{\top}(I-H_i) \mathbf{Y}_i}{\sigma^2} \sim \chi^2(n-1-p).
+$$
+Como en este caso $\hat{\sigma}_i$ no depende de $e_i$ se tiene que es independiente de la normal estandar definida previamente, de aquí se cumple que, 
+
+$$
+\frac{\frac{e_i}{\sigma\sqrt{1-h_{ii}}}}{\sqrt{\frac{(n-1-p)}{(n-1-p)\sigma^2}\hat{\sigma_i}^2}} \sim t(n-1-p).
+$$
+Simplificando el lado derecho se tiene que,
+$$
+r_i=\frac{e_i}{\hat{\sigma}_i \sqrt{1-h_{i i}}}\sim t(n-p-1).
+$$
 \end{soln}
 
 \newpage
@@ -131,13 +201,39 @@
 \newpage
 % Problema 12
 \begin{soln}
+a)- Con las hipótesis del enunciado, observe que la función $\hat{f}_h(x)$ es una suma de funciones indicadoras, que cuenta el número de observaciones $x_i$ que están en el mismo conjunto que $x,$ $I_j.$ Luego ya que $1\{x_i \in I_j\} \geq 0$ y $nh>0$ se tiene que $\hat{f}_h(x)\geq 0.$
+    \\ \\ 
+    b)- Para dar respuesta a este inciso, observe que la función $\hat{f}_h(x)$ se puede escribir como,
+$$ 
+\hat{f}_h(x)=\frac{1}{n h} \sum_{i=1}^n 1\left\{x_i \in I_j\right\} 1\{x \in I_j\}.
+$$
+    Luego la integral buscada se puede ver como,
+    $$\begin{aligned} & \int_{-\infty}^{\infty} \hat{f}_h(x) d x=\int_{-\infty}^{\infty} \frac{1}{n h} \sum_{i=1}^n 1\left\{x_i \in I_j\right\} 1\{x \in I_j\} d x \\ = & \sum_{j=1}^k \frac{1}{n h} \sum_{i=1}^n 1\left\{x_i \in I_j\right\} \int_{-\infty}^{\infty} 1\left\{d x \in I_j\right\} d x \\ = & \sum_{j=1}^n \frac{1}{n h} \sum_{i=1}^n 1\left\{x_i \in I_j\right\} \int_{I_j} d x \\ = & \sum_{j=1}^n \frac{1}{n h} \sum_{i=1}^n 1\left\{x_i \in I_j\right\} \cdot h \\ = & \frac{1}{n} \sum_{i=1}^n \sum_{j=1}^n 1\left\{x_i \in I_j\right\} \\ = & \frac{1}{n} \sum_{i=1}^n 1 \\ = & \frac{n}{n}=1.\end{aligned}$$
+
+Donde la segunda igualdad se tiene de considerar la partición $I_1,...,I_k,$ la penúltima igualdad se tiene ya que cada $x_i$ pertenece a algún conjunto $I_j.$
+\\ \\
+c)-Observe que cuando h es grande, los intervalos contendrán más datos, esto nos llevará a que no se aprecie si hay algún patrón en el comportamiento de los datos, es decir si los datos tienen preferencia por ciertos intervalos. Por otro lado, cuando h es muy pequeño, los intervalos no alcanzarán a contener muchos datos, un caso extremo de ver esto es hacer a h muy cercano a cero de tal forma que cada intervalo contenga a lo más un dato, en este caso, solo se verán barras de tamaño $\frac{1}{n}$ en cada dato.
 
 \end{soln}
 
 \newpage
 % Problema 13
 \begin{soln}
-
+ Normalización)- Con las hipótesis del enunciado, observe que la integral se puede escribir como, 
+    $$\begin{aligned} & \int_{-\infty}^{\infty} \hat{f}_h(x) d x=\int_{-\infty}^{\infty} \frac{1}{nh} \sum_{i=1}^n K\left(\frac{x-x_i}{h}\right) d x \\ = & \sum_{i=1}^n \frac{1}{n h} \int_{-\infty}^{\infty} K\left(\frac{x-x_i}{h}\right) d x \\ = & \sum_{i=1}^n \frac{1}{n h} \int_{-\infty}^{\infty} K(u) h d u \\ = & \sum_{i=1}^n \frac{1}{n} \int_{-\infty}^{\infty} K(u) d u \\ = & \sum_{i=1}^n \frac{1}{n}=1.\end{aligned}$$
+    Donde la tercer igualdad se tiene haciendo el cambio de variable $u=\frac{x-x_i}{h}$ y la penúltima igualdad se tiene gracias a que la integral del kernel K es uno.
+    \\ \\
+    No negatividad)- Para este inciso basta observar por hipotesis $K(u) \geq 0$ y que $nh>0$ por lo que $\hat{f}_h(x)\geq 0.$
+    \\ \\ 
+    Sesgo puntual)- Observe que el sesgo puntual se puede escribir como, 
+$$\begin{aligned} & \mathbb{E}\left[\hat{f}_h(x)\right]-f(x)=\mathbb{E}\left[\sum_{i=1}^n \frac{1}{n h} K\left(\frac{x-x_i}{h}\right)\right]-f(x) \\ = & \sum_{i=1}^n \frac{1}{n h} \mathbb{E}\left[K\left(\frac{x-x_i}{h}\right)\right]-f(x) \\ = & \frac{1}{h} \mathbb{E}\left[K\left(\frac{x-x_1}{h}\right)\right]-f(x) \\ = & \frac{1}{h} \int_{-\infty}^{\infty} K\left(\frac{x-x_1}{h}\right) f\left(x_1\right) d x_1-f(x).\end{aligned}$$
+Haciendo el cambio de variable $u=\frac{x-x_1}{h}$ y considerando que la integral del kernel es igual a uno, se tiene que la expresión anterior es igual a, 
+$$\begin{aligned} & \frac{1}{h} \int_{-\infty}^{\infty} h K(u) f(x-u h) d u-\int_{-\infty}^{\infty} K(u) f(x) d u \\ = & \int_{-\infty}^{\infty} K(u)[f(x-u h)-f(x)] d u.\end{aligned}$$
+Por otro lado, observe que si se desarrolla la serie de Taylor de orden dos de $f(x-uh)$ al rededor de $x$ con error de Peano se tiene la siguiente expresión, 
+$$f(x-u h)=f(x)+f^{\prime}(x)(x-u h-x)+\frac{f^{\prime \prime}(x)(x-v h-x)^2}{2!}+h_2(x-uh)(uh)^2, \quad \lim_{x-uh \to x}h_2(x-uh)=0,$$
+de donde se puede despejar la expresión $f(x-u h)-f(x)$ y sustituyendo en la integral se tiene, 
+$$\begin{aligned} & \int_{-\infty}^{\infty} K(u)\left[f^{\prime}(x)(-u h)+\frac{f^{\prime \prime}(x)(u h)^2}{2!}+h_2(x-uh)(uh)^2\right] d u \\ = & \frac{f^{\prime \prime}(x)}{2!} h^2 \int_{-\infty}^{\infty} u^2 K(u) d u+h^2 \int_{-\infty}^{\infty} K(u) h_2(x-uh) u^2  d u,\end{aligned}$$
+donde esta última igualdad se tiene ya que el primer momento es cero. Además, observe que si se divide entre $h^2$ a la expresión de la derecha y se hace tender a $h$ a cero se tiene,
 \end{soln}
 
 \end{document}

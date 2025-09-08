@@ -85,82 +85,99 @@
 \newpage
 % Problema 2
 \begin{soln}
-Considere el modelo de regresión lineal $\boldsymbol{Y}=X\boldsymbol{\beta} + \boldsymbol{\varepsilon}$ donde $\boldsymbol{\varepsilon}\sim N_n(\boldsymbol{0},\sigma^2I).$ Del ejercicio anterior se sabe que la matriz 
-    $$
-    H=X(X^TX)^{-1}X^T,
-    $$
-    es una matriz de proyección ortogonal. Usando la descomposición espectral, se puede descomponer a $H$ de la forma 
-    $$H=RR^T,$$
-    basta con reescribir a la matriz diagonal como el producto de dos matrices donde cada matriz tiene en su diagonal a la raíz cuadrada de cada elemento. Por otro lado, observe que ya que $H$ es idempotente se tiene que
-    $$
-    H^2=(RR^T)(RR^T)=H=RR^T,
-    $$
-    por lo que $$R^TR=I_p.$$ 
-    Por otro lado, note que por la propiedad cíclica de la traza
-    $$
-    tr(H)=tr(RR^T)=tr(R^TR)=tr(I_p)=p.
-    $$
-    Por lo tanto, $$
-\sum_{i=1}^n h_{i i}=p.
-$$
+Considere el modelo de regresión lineal $\boldsymbol{Y}=X\boldsymbol{\beta} + \boldsymbol{\varepsilon}$ donde $\boldsymbol{\varepsilon}\sim N_n(\boldsymbol{0},\sigma^2 I_n)$, y $X$ es una matriz de dimensiones $n\times p$, que asumimos de rango de columnas completo (de modo que $X^T X$ es invertible). Ahora bien, notemos que $X^T X$ es una matriz de dimensiones $p\times p$, y $X^T$ es de dimensiones $p\times n$. Puesto que 
+\[
+H=X{(X^T X)}^{-1}X^T,
+\]
+entonces $H$ es una matriz de $n\times n$, y por la propiedad cíclica de la traza se tiene que
+\[
+\sum_{i=1}^{n} h_{ii} = tr(H) = tr\left(X{(X^T X)}^{-1}X^T\right) = tr\left(X^T X {(X^T X)}^{-1}\right) = tr(I_p)=p,
+\]
+en donde $I_p$ es la matriz identidad de dimensiones $p\times p$.
+
+Observemos además que los valores ajustados están dados por $\hat{\boldsymbol{Y}}=HY$, así que, como $\variance[Y]=\sigma^2 I$,
+\[
+\variance[\hat{\boldsymbol{Y}}] = \sigma^2 H H^T = \sigma^2 H^2 = \sigma^2 H,
+\]
+en donde hemos usado el ejercicio anterior para ver que $H$ es simétrica e idempotente. Así pues, la ``varianza total'' de la estimación es
+\[
+\sum_{i=1}^{n} \variance[\hat{\boldsymbol{Y}}_i] = \sigma^2 tr(H) = \sigma^2 p;
+\]
+es decir, es igual al número de parámetros multiplicado por $\sigma^2$ (la varianza común de los errores). Además, cada elemento $h_{ii}$ de la diagonal de $H$ mide la influencia de la observación $i$-ésima, así que el resultado anterior puede ser interpretado como que el número efectivo de parámetros es justamente $p$.
+
+Por otra parte, mientras mayor es el número de parámetros utilizados, el modelo puede explicar a los datos de una mejor manera, disminuyendo el sesgo, pero esto incrementa la varianza total, así que puede llevar a un sobreajuste, disminuyendo la generalidad del modelo.
+    % Usando la descomposición espectral, se puede descomponer a $H$ de la forma 
+    % $$H=RR^T,$$
+    % basta con reescribir a la matriz diagonal como el producto de dos matrices donde cada matriz tiene en su diagonal a la raíz cuadrada de cada elemento. Por otro lado, observe que ya que $H$ es idempotente se tiene que
+    % $$
+    % H^2=(RR^T)(RR^T)=H=RR^T,
+    % $$
+    % por lo que $$R^TR=I_p.$$ 
+    % Por otro lado, note que por la propiedad cíclica de la traza
+    % $$
+    % tr(H)=tr(RR^T)=tr(R^TR)=tr(I_p)=p.
+    % $$
+    % Por lo tanto, $$
+    % \sum_{i=1}^n h_{i i}=p.
+    % $$
 \end{soln}
 
 \newpage
 % Problema 3
 \begin{soln}
- Considere el modelo de regresión lineal clásico, $\boldsymbol{Y}=X\boldsymbol{\beta} + \boldsymbol{\varepsilon}$ donde $\boldsymbol{\varepsilon}\sim N_n(\boldsymbol{0},\sigma^2I)$ y a la matriz de proyección ortogonal,
-    $$
-    H=X(X^TX)^{-1}X^T.
-    $$
- Se sabe que el vector de residuos se puede expresa como 
- $$
- \boldsymbol{e}=(I-H)\boldsymbol{Y},
- $$
-luego ya que $\boldsymbol{Y}$ sigue una distribución normal multivariada con media $X\boldsymbol{\beta}$ y varianza $\sigma^2 I_n$, se tiene que, 
-$$
+ Considere el modelo de regresión lineal clásico, $\boldsymbol{Y}=X\boldsymbol{\beta} + \boldsymbol{\varepsilon}$ donde $\boldsymbol{\varepsilon}\sim N_n(\boldsymbol{0},\sigma^2 I_n)$ y a la matriz de proyección ortogonal,
+\[
+H=X{(X^T X)}^{-1}X^T.
+\]
+Ahora bien, el vector de residuos se puede expresar como 
+\[
+\boldsymbol{e}=(I_n-H)\boldsymbol{Y},
+\]
+y como $\boldsymbol{Y}$ sigue una distribución normal multivariada con media $X\boldsymbol{\beta}$ y varianza $\sigma^2 I_n$, se tiene que, 
+\[
 \boldsymbol{e}\sim N_n\left(\mathbf{0}, \sigma^2\left(I_n-H\right)\right).
-$$
-De lo anterior, se tiene que 
-$$
-e_i \sim N(0,\sigma^2 (1-h_{ii}).
-$$
+\]
+De lo anterior se sigue que, para cada $i\in \left\lbrace 1, \ldots, n \right\rbrace$,
+\[
+e_i \sim N(0,\sigma^2 (1-h_{ii})),
+\]
 y normalizando,
-$$
-\frac{e_i}{\sigma\sqrt{1-h_{ii}}}\sim N(0,1)
-$$
-Por otro lado, observe que si se considera a el estimador insesgado de la varianza,
-$$\hat{\sigma}^2=\frac{\mathbf{e}^{\top} \mathbf{e}}{n-p}=\frac{\sigma^2 \mathbf{Y}^{\top}(I-H) \mathbf{Y}}{\sigma^2 (n-p)},$$
-y se observa que $(I-H)$ es una matriz idempotente de rango $n-p$ se tiene que 
-$$
+\[
+\frac{e_i}{\sigma\sqrt{1-h_{ii}}}\sim N(0,1).
+\]
+Por otro lado, observemos que si se considera al estimador insesgado de la varianza,
+\[
+\hat{\sigma}^2=\frac{\mathbf{e}^{\top} \mathbf{e}}{n-p}=\frac{\sigma^2 \mathbf{Y}^{\top}(I_n-H) \mathbf{Y}}{\sigma^2 (n-p)},
+\]
+como $(I_n-H)$ es una matriz idempotente de rango $n-p$ (la idempotencia se sigue del ejercicio $1$, y en una matriz idempotente el rango es igual a la traza), se tiene que 
+\[
 \frac{(n-p)}{\sigma^2}\hat{\sigma}^2= \frac{ \mathbf{Y}^{\top}(I-H) \mathbf{Y}}{\sigma^2} \sim \chi^2(n-p).
-$$
-Por ultimo, se sabe que una variable aleatoria t de Student con r grados de libertad se define como la razón entre una variable aleatoria normal estándar sobre la raiz cuadrada de una variable chi cuadrada dividida entre sus r grados, con las variables aleatorias independientes. Ya que en este caso la normal estandar no es independiente de la chi cuadra se tiene que la siguiente variable aleatoria cumple que aproximadamente,
-
-$$
+\]
+Por último, se sabe que la razón entre una variable aleatoria normal estándar sobre la raíz cuadrada de una variable aleatoria independiente con distribución ji cuadrada dividida entre sus $r$ grados, se distribuye como una variable aleatoria t de Student con $r$ grados de libertad. Ya que en este caso los residuos normalizados (con una distribución  normal estándar) no son independientes de la ji cuadrada se tiene que la siguiente variable aleatoria cumple que aproximadamente,
+\[
 \frac{\frac{e_i}{\sigma\sqrt{1-h_{ii}}}}{\sqrt{\frac{(n-p)}{(n-p)\sigma^2}\hat{\sigma}^2}} \sim t(n-p).
-$$
-Simplificando la expresión de la izquierda se tiene, 
-$$
+\]
+Simplificando la expresión de la izquierda se tiene que los residuos estandarizados tienen una distribución aproximada de:
+\[
 r_i=\frac{e_i}{\hat{\sigma} \sqrt{1-h_{i i}}} \sim t(n-p).
-$$
-Para arreglar el problema de la independencia se propone estimar a $\sigma^2$ sin usar el i-esimo dato, es decir
-
-$$
-\hat{\sigma}_{i}^2=\frac{\mathbf{e_i}^{\top} \mathbf{e_i}}{n-1-p}=\frac{\sigma^2 \mathbf{Y}_i^{\top}(I-H_i) \mathbf{Y_i}}{\sigma^2 (n-1-p)},
-$$
-donde el vector $\mathbf{Y}_i$ se obtiene eliminando al i-esima entrada y $H_i$ se construye eliminando la i-esíma entrada de $X.$ En este caso la matriz $(I-H_i)$ es idempotente de rango n-1-p, por lo que, 
-$$
-\frac{(n-1-p)}{\sigma^2}\hat{\sigma_i}^2= \frac{ \mathbf{Y_i}^{\top}(I-H_i) \mathbf{Y}_i}{\sigma^2} \sim \chi^2(n-1-p).
-$$
-Como en este caso $\hat{\sigma}_i$ no depende de $e_i$ se tiene que es independiente de la normal estandar definida previamente, de aquí se cumple que, 
-
-$$
+\]
+Para arreglar el problema de la independencia y obtener la distribución que pide el problema, se puede estimar a $\sigma^2$ sin usar el i-ésimo dato. Es decir, definamos
+\[
+\hat{\sigma}_{i}^2=\frac{\mathbf{e_i}^{\top} \mathbf{e_i}}{n-p-1}=\frac{\sigma^2 \mathbf{Y}_i^{\top}(I_{n-1}-H_i) \mathbf{Y_i}}{\sigma^2 (n-p-1)},
+\]
+donde el vector $\mathbf{Y}_i$ se obtiene eliminando la i-ésima entrada de $Y$ y $H_i$ se construye eliminando la i-ésima entrada de $X$. En este caso la matriz $(I_{n-1}-H_i)$ es idempotente y de rango $n-p-1$, por lo que
+\[
+\frac{(n-1-p)}{\sigma^2}\hat{\sigma_i}^2= \frac{\mathbf{Y_i}^{\top}(I_{n-1}-H_i) \mathbf{Y}_i}{\sigma^2} \sim \chi^2(n-1-p).
+\]
+Como $\hat{\sigma}_i$ no depende de la $i$-ésima observación, y los errores son independientes, entonces también es independiente de $e_i$. De aquí se tiene la siguiente distribución exacta:
+\[
 \frac{\frac{e_i}{\sigma\sqrt{1-h_{ii}}}}{\sqrt{\frac{(n-1-p)}{(n-1-p)\sigma^2}\hat{\sigma_i}^2}} \sim t(n-1-p).
-$$
-Simplificando el lado derecho se tiene que,
-$$
-r_i=\frac{e_i}{\hat{\sigma}_i \sqrt{1-h_{i i}}}\sim t(n-p-1).
-$$
+\]
+Simplificando el lado derecho se concluye que, de manera exacta,
+\[
+\frac{e_i}{\hat{\sigma}_i \sqrt{1-h_{i i}}}\sim t(n-p-1).
+\]
+Gracias a lo demostrado anteriormente, para cada observación $i$ se puede calcular su residuo estandarizado (o studentizado), y bajo la hipótesis nula de que la observación $i$-ésima es bien consistente con el modelo, dicho residuo debería pertenecer a una distribución $t$ de Student con los grados de libertad anteriormente mencionados, así que al calcular su $p$-valor se puede establecer un criterio que permita la detección de outliers.
 \end{soln}
 
 \newpage
@@ -345,39 +362,90 @@ La sucesión correpondiente a la transformación de Box y Cox con $\lambda=1$ es
 \newpage
 % Problema 12
 \begin{soln}
-a)- Con las hipótesis del enunciado, observe que la función $\hat{f}_h(x)$ es una suma de funciones indicadoras, que cuenta el número de observaciones $x_i$ que están en el mismo conjunto que $x,$ $I_j.$ Luego ya que $1\{x_i \in I_j\} \geq 0$ y $nh>0$ se tiene que $\hat{f}_h(x)\geq 0.$
-    \\ \\ 
-    b)- Para dar respuesta a este inciso, observe que la función $\hat{f}_h(x)$ se puede escribir como,
-$$ 
-\hat{f}_h(x)=\frac{1}{n h} \sum_{i=1}^n 1\left\{x_i \in I_j\right\} 1\{x \in I_j\}.
-$$
-    Luego la integral buscada se puede ver como,
-    $$\begin{aligned} & \int_{-\infty}^{\infty} \hat{f}_h(x) d x=\int_{-\infty}^{\infty} \frac{1}{n h} \sum_{i=1}^n 1\left\{x_i \in I_j\right\} 1\{x \in I_j\} d x \\ = & \sum_{j=1}^k \frac{1}{n h} \sum_{i=1}^n 1\left\{x_i \in I_j\right\} \int_{-\infty}^{\infty} 1\left\{d x \in I_j\right\} d x \\ = & \sum_{j=1}^n \frac{1}{n h} \sum_{i=1}^n 1\left\{x_i \in I_j\right\} \int_{I_j} d x \\ = & \sum_{j=1}^n \frac{1}{n h} \sum_{i=1}^n 1\left\{x_i \in I_j\right\} \cdot h \\ = & \frac{1}{n} \sum_{i=1}^n \sum_{j=1}^n 1\left\{x_i \in I_j\right\} \\ = & \frac{1}{n} \sum_{i=1}^n 1 \\ = & \frac{n}{n}=1.\end{aligned}$$
+a) Con las hipótesis del enunciado, observemos que la función $\hat{f}_h(x)$ es una suma de funciones indicadoras, que cuenta el número de observaciones $x_i$ que están en el mismo conjunto que $x$, $I_j$. Luego, ya que $1\{x_i \in I_j\} \geq 0$ y $nh>0$ se tiene que $\hat{f}_h(x)\geq 0$.
 
-Donde la segunda igualdad se tiene de considerar la partición $I_1,...,I_k,$ la penúltima igualdad se tiene ya que cada $x_i$ pertenece a algún conjunto $I_j.$
-\\ \\
-c)-Observe que cuando h es grande, los intervalos contendrán más datos, esto nos llevará a que no se aprecie si hay algún patrón en el comportamiento de los datos, es decir si los datos tienen preferencia por ciertos intervalos. Por otro lado, cuando h es muy pequeño, los intervalos no alcanzarán a contener muchos datos, un caso extremo de ver esto es hacer a h muy cercano a cero de tal forma que cada intervalo contenga a lo más un dato, en este caso, solo se verán barras de tamaño $\frac{1}{n}$ en cada dato.
+b) Para dar respuesta a este inciso, notemos que la función $\hat{f}_h(x)$ se puede escribir como
+\[ 
+\hat{f}_h(x)=\frac{1}{n h} \sum_{j=1}^k 1\{x \in I_j\}\sum_{i=1}^n 1\left\{x_i \in I_j\right\},
+\]
+en donde hemos considerado que los intervalos $I_1, \ldots, I_k$ son ajenos. Luego, la integral buscada se puede ver como
+\[
+\begin{split}
+  & \int_{-\infty}^{\infty} \hat{f}_h(x) d x= \int_{-\infty}^{\infty} \frac{1}{n h} \sum_{j=1}^k 1\{x \in I_j\}\sum_{i=1}^n 1\left\{x_i \in I_j\right\} d x \\
+  &=  \frac{1}{n h} \sum_{j=1}^k \int_{\left\lbrace x\in I_j \right\rbrace} \sum_{i=1}^n 1\left\{x_i \in I_j\right\} dx\\
+  &=  \frac{1}{n h} \sum_{j=1}^k \sum_{i=1}^n 1\left\{x_i \in I_j\right\} \int_{\left\lbrace x\in I_j \right\rbrace}  dx\\
+  &=  \frac{1}{n h} \sum_{j=1}^k \sum_{i=1}^n 1\left\{x_i \in I_j\right\} h\\
+  &=  \frac{1}{n} \sum_{i=1}^n \sum_{j=1}^k 1\left\{x_i \in I_j\right\}\\ 
+  &=  \frac{1}{n} \sum_{i=1}^n 1\\ 
+  &=  \frac{n}{n}=1,
+\end{split}
+\]
+en donde la igualdad en el penúltimo renglón se tiene ya que cada $x_i$ pertenece a algún conjunto $I_j$.
+
+c) Observemos que cuando $h$ es grande, los intervalos contendrán más datos, esto nos llevará a que no se aprecie si hay algún patrón en el comportamiento de los datos, es decir si los datos tienen preferencia por ciertos intervalos. Esto tiene la ventaja que la varianza es menor, pero el sesgo es mayor. Por otro lado, cuando $h$ es muy pequeño, los intervalos no alcanzarán a contener muchos datos, lo cual hace que haya un sesgo menor, pero mayor varianza; es decir, un sobreajuste. Un caso extremo de ver esto es hacer a $h$ muy cercano a cero de tal forma que cada intervalo contenga a lo más un dato, y en este caso, solo se verán barras de la misma altura alrededor de cada dato.
 
 \end{soln}
 
 \newpage
 % Problema 13
 \begin{soln}
- Normalización)- Con las hipótesis del enunciado, observe que la integral se puede escribir como, 
-    $$\begin{aligned} & \int_{-\infty}^{\infty} \hat{f}_h(x) d x=\int_{-\infty}^{\infty} \frac{1}{nh} \sum_{i=1}^n K\left(\frac{x-x_i}{h}\right) d x \\ = & \sum_{i=1}^n \frac{1}{n h} \int_{-\infty}^{\infty} K\left(\frac{x-x_i}{h}\right) d x \\ = & \sum_{i=1}^n \frac{1}{n h} \int_{-\infty}^{\infty} K(u) h d u \\ = & \sum_{i=1}^n \frac{1}{n} \int_{-\infty}^{\infty} K(u) d u \\ = & \sum_{i=1}^n \frac{1}{n}=1.\end{aligned}$$
-    Donde la tercer igualdad se tiene haciendo el cambio de variable $u=\frac{x-x_i}{h}$ y la penúltima igualdad se tiene gracias a que la integral del kernel K es uno.
-    \\ \\
-    No negatividad)- Para este inciso basta observar por hipotesis $K(u) \geq 0$ y que $nh>0$ por lo que $\hat{f}_h(x)\geq 0.$
-    \\ \\ 
-    Sesgo puntual)- Observe que el sesgo puntual se puede escribir como, 
-$$\begin{aligned} & \mathbb{E}\left[\hat{f}_h(x)\right]-f(x)=\mathbb{E}\left[\sum_{i=1}^n \frac{1}{n h} K\left(\frac{x-x_i}{h}\right)\right]-f(x) \\ = & \sum_{i=1}^n \frac{1}{n h} \mathbb{E}\left[K\left(\frac{x-x_i}{h}\right)\right]-f(x) \\ = & \frac{1}{h} \mathbb{E}\left[K\left(\frac{x-x_1}{h}\right)\right]-f(x) \\ = & \frac{1}{h} \int_{-\infty}^{\infty} K\left(\frac{x-x_1}{h}\right) f\left(x_1\right) d x_1-f(x).\end{aligned}$$
-Haciendo el cambio de variable $u=\frac{x-x_1}{h}$ y considerando que la integral del kernel es igual a uno, se tiene que la expresión anterior es igual a, 
-$$\begin{aligned} & \frac{1}{h} \int_{-\infty}^{\infty} h K(u) f(x-u h) d u-\int_{-\infty}^{\infty} K(u) f(x) d u \\ = & \int_{-\infty}^{\infty} K(u)[f(x-u h)-f(x)] d u.\end{aligned}$$
-Por otro lado, observe que si se desarrolla la serie de Taylor de orden dos de $f(x-uh)$ al rededor de $x$ con error de Peano se tiene la siguiente expresión, 
-$$f(x-u h)=f(x)+f^{\prime}(x)(x-u h-x)+\frac{f^{\prime \prime}(x)(x-v h-x)^2}{2!}+h_2(x-uh)(uh)^2, \quad \lim_{x-uh \to x}h_2(x-uh)=0,$$
-de donde se puede despejar la expresión $f(x-u h)-f(x)$ y sustituyendo en la integral se tiene, 
-$$\begin{aligned} & \int_{-\infty}^{\infty} K(u)\left[f^{\prime}(x)(-u h)+\frac{f^{\prime \prime}(x)(u h)^2}{2!}+h_2(x-uh)(uh)^2\right] d u \\ = & \frac{f^{\prime \prime}(x)}{2!} h^2 \int_{-\infty}^{\infty} u^2 K(u) d u+h^2 \int_{-\infty}^{\infty} K(u) h_2(x-uh) u^2  d u,\end{aligned}$$
-donde esta última igualdad se tiene ya que el primer momento es cero. Además, observe que si se divide entre $h^2$ a la expresión de la derecha y se hace tender a $h$ a cero se tiene,
+\textbf{Normalización)} Con las hipótesis del enunciado, observemos que la integral se puede escribir como
+\[
+\begin{split}
+  & \int_{-\infty}^{\infty} \hat{f}_h(x) d x=\int_{-\infty}^{\infty} \frac{1}{nh} \sum_{i=1}^n K\left(\frac{x-x_i}{h}\right) d x \\
+  &=  \frac{1}{n h}\sum_{i=1}^n  \int_{-\infty}^{\infty} K\left(\frac{x-x_i}{h}\right) d x \\
+  &= \frac{1}{n h}\sum_{i=1}^n  \int_{-\infty}^{\infty} K(u) h d u \\
+  &=  \frac{1}{n}\sum_{i=1}^n  \int_{-\infty}^{\infty} K(u) d u \\
+  &=  \frac{1}{n}\sum_{i=1}^n 1=1,
+\end{split}
+\]
+en donde hemos usado el Teorema de Fubini para el intercambio de la suma y la integral para la segunda igualdad, y la tercera igualdad se tiene haciendo el cambio de variables $u=\frac{x-x_i}{h}$. Además, se ha considerado que $K$ integra $1$ para la primera igualdad del último renglón.
+
+\textbf{No negatividad)} Para este inciso basta observar por hipótesis $K(u) \geq 0$ y que $nh>0$, y como la integral de funciones no negativas es no negativas, se concluye que $\hat{f}_h(x)\geq 0$.
+
+\textbf{Sesgo puntual)} Observemos que, como la muestra $x_1, \ldots, x_n$ corresponde a variables aleatorias iid, el sesgo puntual se puede escribir como
+\[
+\begin{split}
+  & \mathbb{E}\left[\hat{f}_h(x)\right]-f(x)=\mathbb{E}\left[\sum_{i=1}^n \frac{1}{n h} K\left(\frac{x-x_i}{h}\right)\right]-f(x) \\
+  &=  \frac{1}{n h} \sum_{i=1}^n \mathbb{E}\left[K\left(\frac{x-x_i}{h}\right)\right]-f(x) \\
+  &=  \frac{1}{h} \mathbb{E}\left[K\left(\frac{x-x_1}{h}\right)\right]-f(x) \\
+  &=  \frac{1}{h} \int_{-\infty}^{\infty} K\left(\frac{x-x_1}{h}\right) f\left(x_1\right) d x_1-f(x).
+\end{split}
+\] 
+Haciendo el cambio de variables $u=\frac{x-x_1}{h}$ y considerando que la integral del kernel es igual a uno, se tiene que la expresión anterior es igual a
+\begin{equation}\label{Prob13-Eq1}
+  \begin{split}
+  \mathbb{E}\left[\hat{f}_h(x)\right]-f(x) &= \frac{1}{h} \int_{-\infty}^{\infty} h K(u) f(x-u h) d u-\int_{-\infty}^{\infty} K(u) f(x) d u \\
+  & = \int_{-\infty}^{\infty} K(u)[f(x-u h)-f(x)] d u.
+\end{split}
+\end{equation}
+Por otro lado, asumiendo que $f$ tiene derivadas de segundo orden, por el Teorema de Taylor con errores de Peano, se tiene la siguiente aproximación de orden dos de $f(x-uh)$ alrededor de $x$:
+\[
+f(x-u h)=f(x)+f^{\prime}(x)(x-u h-x)+\frac{f^{\prime \prime}(x){(x-u h-x)}^2}{2!}+h_2(x-uh){(uh)}^2,
+\]
+en donde $h_2$ es una función tal que
+\[
+\lim_{h\to 0}h_2(x-uh)=0.
+\]
+Sustituyendo lo anterior en \eqref{Prob13-Eq1} se tiene que
+\[
+\begin{split}
+  \mathbb{E}\left[\hat{f}_h(x)\right]-f(x) &= \int_{-\infty}^{\infty} K(u)\left[f^{\prime}(x)(-u h)+\frac{f^{\prime \prime}(x){(u h)}^2}{2!}+h_2(x-uh){(uh)}^2\right] d u \\
+  &=  \frac{f^{\prime \prime}(x)}{2!} h^2 \int_{-\infty}^{\infty} u^2 K(u) d u+h^2 \int_{-\infty}^{\infty} K(u) h_2(x-uh) u^2  d u,
+\end{split}
+\]
+donde esta última igualdad se tiene ya que $\int uK(u)du=0$ y $\mu_2(K)$ es finito. Además, ya que $h_2$ está acotada alrededor de $x$ (es decir, cuando $h$ es pequeño), y $\mu_2(K)$ existe y es finito, por el Teorema de Convergencia Dominada se tiene que
+\[
+\lim_{h\to 0} \int_{-\infty}^{\infty} K(u) h_2(x-uh) u^2  d u = \int_{-\infty}^{\infty} \lim_{h\to 0} K(u) h_2(x-uh) u^2  d u = 0.
+\]
+Por lo tanto,
+\[
+h^2 \int_{-\infty}^{\infty} K(u) h_2(x-uh) u^2  d u = o(h^2).
+\]
+En conclusión,
+\[
+\mathbb{E}\left[\hat{f}_h(x)\right]-f(x) = \frac{h^2}{2}\mu_2(K)f''(x)+o(h^2).
+\]
 \end{soln}
 
 \end{document}

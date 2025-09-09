@@ -1,24 +1,79 @@
+# %%
 import os
 import numpy as np
 import pandas as pd
 from scipy import stats
 import matplotlib.pyplot as plt
+# %%
 
 # Establecemos el working directory
 os.chdir(".\\Practica\\Data\\2023-Data")
 
 # Lectura de datos
-df = pd.read_excel("data.xlsx", header=None)
+df = pd.read_excel("data.xlsx", header=None )
+print(df)
+#Se quitaron columnas que no aportaban informacion
+df1 = df.drop([0,1,2, 3,4,5,6,7,8])
+print(df1)
+
+
+
+#SE TOMAN LAS COLUMNAS DEL PRIMER AÑO AL ULTIMO AÑO Y SE TRANSPONEN
+df2=df.iloc[[6,7]].T
+#Se vuelve indexar
+df2.columns = df2.iloc[0]  # asigna la primera fila como nombres de columnas
+df2 = df2[1:]  #TOMA A PARTIR DE EL SEGUNDO RENGLON POR QUE CON LA LINEA ANTERIOR SE CLONO EL PRIMERO
+df2 = df2.reset_index(drop=True) #Se resetan los indices
+df2.index.name = None #Se quita el nombre del indice
+print(df2)
+
+#SE ACOMODAN LOS INDICES DE LAS COLUMNAS SELECCIONADAS
+print(df1)
+df1.columns = df1.iloc[0]  # asigna la primera fila como nombres de columnas
+df1 = df1[1:]  #TOMA A PARTIR DE EL SEGUNDO RENGLON POR QUE CON LA LINEA ANTERIOR SE CLONO EL PRIMERO
+df1 = df1.reset_index(drop=True) #Se resetan los indices
+df1.index.name = None #Se quita el nombre del indice
+print(df1)
+#Se concatenaron los df para tener los nombres de las columnas correctos
+df = pd.concat([df2, df1], axis=1)
+print(df)
+
+#Ya que hay columnas repetidas, se renombran
+
+def make_unique_columns(df):
+    """
+    Renombra columnas duplicadas en un DataFrame agregando sufijos .1, .2, etc.
+    """
+    cols = pd.Series(df.columns, dtype="string")
+    for dup in cols[cols.duplicated()].unique():
+        dup_idx = cols[cols == dup].index.tolist()
+        for i, idx in enumerate(dup_idx):
+            if i == 0:
+                continue  # el primero se queda igual
+            cols[idx] = f"{dup}.{i}"
+    df.columns = cols
+    return df
+
+
+
+df= make_unique_columns(df)
+print(df)
+
+#Se analiza el tipo de datos que tiene el df
+print(df.dtypes)
+df.info()
+
+
 
 
 # Analisis de datos faltantes
+
 
 missing_count = df.isna().sum()
 missing_percent = (missing_count / len(df)) * 100
 missing_summary = pd.DataFrame(
     {"Valores faltantes": missing_count, "Porcentaje": missing_percent.round(2)}
 )
-
 print("\n--- Datos faltantes por columna ---")
 print(missing_summary)
 

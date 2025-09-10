@@ -191,7 +191,7 @@ Para arreglar el problema de la independencia y obtener la distribución que pid
 \[
 \hat{\sigma}_{i}^2=\frac{\mathbf{e_i}^{\top} \mathbf{e_i}}{n-p-1}=\frac{\sigma^2 \mathbf{Y}_i^{\top}(I_{n-1}-H_i) \mathbf{Y_i}}{\sigma^2 (n-p-1)},
 \]
-donde el vector $\mathbf{Y}_i$ se obtiene eliminando la i-ésima entrada de $Y$ y $H_i$ se construye eliminando la i-ésima entrada de $X$. En este caso la matriz $(I_{n-1}-H_i)$ es idempotente y de rango $n-p-1$, por lo que
+donde el vector $\mathbf{Y}_i$ se obtiene eliminando la $i$-ésima entrada de $Y$ y $H_i$ se construye eliminando la $i$-ésima entrada de $X$. En este caso la matriz $(I_{n-1}-H_i)$ es idempotente y de rango $n-p-1$, por lo que
 \[
 \frac{(n-1-p)}{\sigma^2}\hat{\sigma_i}^2= \frac{\mathbf{Y_i}^{\top}(I_{n-1}-H_i) \mathbf{Y}_i}{\sigma^2} \sim \chi^2(n-1-p).
 \]
@@ -321,9 +321,46 @@ Para concluir ignorabilidad buscamos que $L\left(\theta \given Y_{obs}, \boldsym
 % Problema 7
 \begin{soln}
 Sean $\hat{\boldsymbol{\beta}}$ los coeficientes estimados de la regresión completa, y $\hat{\boldsymbol{\beta}}_{(i)}$ los coeficientes estimados sin la observación $i$-ésima. Es un hecho conocido que para la regresión lineal se cumple que
+\begin{equation}\label{Prob7-Eq1}
+  \hat{\boldsymbol{\beta}}_{(i)} = \hat{\boldsymbol{\beta}} - {(X^{T} X)}^{-1}\boldsymbol{x}_i \frac{e_i}{1-h_{ii}}.
+\end{equation}
+Para ver lo anterior, supongamos sin pérdida de generalidad que $i=1$ (el resto de los argumentos son análogos). Podemos particionar la información a eliminar de la siguiente manera:
 \[
-\hat{\boldsymbol{\beta}}_{(i)} = \hat{\boldsymbol{\beta}} - {(X^{T} X)}^{-1}\boldsymbol{x}_i \frac{e_i}{1-h_{ii}}.
+\boldsymbol{Y}=\left[ \begin{array}{c}
+Y_1 \\ \boldsymbol{Y}_{(1)} \end{array} \right] =
+X \boldsymbol{\beta} + \boldsymbol{\epsilon} = \left[ \begin{array}{c}
+\boldsymbol{x}_1^{T} \\ X_1 \end{array} \right] \boldsymbol{\beta} + \boldsymbol{\epsilon},
 \]
+en donde $(1)$ significa el vector sin la observación $1$, y $\boldsymbol{x}_1^{T}$ es la fila $1$ de $X$ (la correspondiente a la observación $1$). De este modo, $\hat{\boldsymbol{\beta}}_{(1)}$ es el ajuste del modelo
+\[
+\boldsymbol{Y}_{(1)}=X_1\beta+\boldsymbol{\epsilon}_{(1)},
+\]
+por lo que $\hat{\boldsymbol{\beta}}_{(1)}=(X_1^{T}X_1)^{-1}X_1^{T}\boldsymbol{Y}_{(1)}$. Por otro lado, veamos que
+\begin{equation}\label{Prob7-Eq2}
+  X^{T}X=[\boldsymbol{x}_1,X_1^{T}]\left[ \begin{array}{c} \boldsymbol{x}_1^{T} \\ X_1 \end{array} \right]
+= \boldsymbol{x}_1\boldsymbol{x}_1^{T}+X_1^{T}X_1,
+\end{equation}
+de donde se sigue que $X_1^{T}X_1=X^{T}X-\boldsymbol{x}_1\boldsymbol{x}_1^{T}$. Luego, por la identidad de Woodbury para matrices se tiene que
+\[
+(X_1^{T}X_1)^{-1} =
+(X^{T}X)^{-1}+(X^{T}X)^{-1}\boldsymbol{x}_1(1-\boldsymbol{x}_1^{T}(X^{T}X)^{-1}\boldsymbol{x}_1)^{-1}\boldsymbol{x}_1^{T}(X^{T}X)^{-1}.
+\]
+De manera análoga a \eqref{Prob7-Eq2}, tenemos que $X_1^{T}\boldsymbol{Y}_{(1)} = X^{T}\boldsymbol{Y} - \boldsymbol{x}_1Y_1$, de donde se sigue que
+\[
+\begin{split}
+\hat{\boldsymbol{\beta}}_{(1)} & = \;(X_1^{T}X_1)^{-1}X_1^{T}\boldsymbol{Y}_{(1)}\\[5pt]
+&= \; (X^{T}X)^{-1}X^{T}\boldsymbol{Y}+(X^{T}X)^{-1}\boldsymbol{x}_1\left[1-\boldsymbol{x}_1^{T}(X^{T}X)^{-1}\boldsymbol{x}_1\right]^{-1}\boldsymbol{x}_1^{T}(X^{T}X)^{-1}X^{T}\boldsymbol{Y} \\
+    & \quad -(X^{T}X)^{-1}\boldsymbol{x}_1Y_1 -(X^{T}X)^{-1}\boldsymbol{x}_1\left[1-\boldsymbol{x}_1^{T}(X^{T}X)^{-1}\boldsymbol{x}_1\right]^{-1}\boldsymbol{x}_1^{T}(X^{T}X)^{-1}\boldsymbol{x}_1Y_1 \\[10pt]
+& = \; \hat{\boldsymbol{\beta}}+(X^{T}X)^{-1}\boldsymbol{x}_1(1-h_{11})^{-1}\boldsymbol{x}_1^{T}\hat{\boldsymbol{\beta}}
+    -(X^{T}X)^{-1}\boldsymbol{x}_1Y_1 -(X^{T}X)^{-1}\boldsymbol{x}_1(1-h_{11})^{-1}h_{11}Y_1 \\[5pt]
+& = \; \hat{\boldsymbol{\beta}}+\frac{(X^{T}X)^{-1}}{1-h_{11}} \left[
+     \boldsymbol{x}_1\hat{Y}_1 - (1-h_{11})\boldsymbol{x}_1Y_1 - \boldsymbol{x}_1h_{11}Y_1\right]\\
+& = \; \hat{\boldsymbol{\beta}}-\frac{(X^{T}X)^{-1}}{1-h_{11}} \boldsymbol{x}_1e_1 \\[5pt]
+& = \; \hat{\boldsymbol{\beta}}-(X^{T}X)^{-1}\boldsymbol{x}_1 \frac{e_1}{1-h_{11}}.
+\end{split}
+\]
+Por consiguiente, como $i=1$ fue tomado sin pérdida de generalidad, se concluye que \eqref{Prob7-Eq1} es válida.
+
 Por otra parte,
 \[
 D_i = \frac{\sum_{j=1}^{n} {\left(\hat{y}_j-\hat{y}_{j(i)}\right)}^2}{p\hat{\sigma}^2} =\frac{\left(\widehat{\boldsymbol{Y}}_{(i)}-\widehat{\boldsymbol{Y}}\right)^{T}\left(\widehat{\boldsymbol{Y}}_{(i)}-\widehat{\boldsymbol{Y}}\right)}{p\hat{\sigma}^2} = \frac{(\widehat{\boldsymbol{\beta}}_{(i)}-\widehat{\boldsymbol{\beta}})^{T}(X^{T}X)\; (\widehat{\boldsymbol{\beta}}_{(i)}-\widehat{\boldsymbol{\beta}})}{p\hat{\sigma}^2}.

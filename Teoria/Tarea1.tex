@@ -520,7 +520,15 @@ Sustituyendo lo anterior en \eqref{Prob13-Eq1} se tiene que
   &=  \frac{f^{\prime \prime}(x)}{2!} h^2 \int_{-\infty}^{\infty} u^2 K(u) d u+h^2 \int_{-\infty}^{\infty} K(u) h_2(x-uh) u^2  d u,
 \end{split}
 \]
-donde esta última igualdad se tiene ya que $\int uK(u)du=0$ y $\mu_2(K)$ es finito. Además, ya que $h_2$ está acotada alrededor de $x$ (es decir, cuando $h$ es pequeño), y $\mu_2(K)$ existe y es finito, por el Teorema de Convergencia Dominada se tiene que
+donde esta última igualdad se tiene ya que $\int uK(u)du=0$ y $\mu_2(K)$ es finito. Además, ya que $h_2$ está acotada alrededor de $x$ (es decir, cuando $h$ es pequeño), entonces para $h$ suficientemente chico se tiene que
+\[
+\left\lvert h_2(x-uh) \right\rvert \leq 1,
+\]
+lo que implica que
+\[
+\left\lvert K(u) h_2(x-uh) u^2 \right\rvert \leq \left\lvert u^2 K(u) \right\rvert,
+\]
+y dicha función es integrable por hipótesis, pues $\mu_2(K)$ existe y es finito. Luego, por el Teorema de Convergencia Dominada se tiene que
 \[
 \lim_{h\to 0} \int_{-\infty}^{\infty} K(u) h_2(x-uh) u^2  d u = \int_{-\infty}^{\infty} \lim_{h\to 0} K(u) h_2(x-uh) u^2  d u = 0.
 \]

@@ -100,6 +100,20 @@ df_isotopes = pd.DataFrame(df_isotopes, dtype="float")
 df_isotopes = df_isotopes.set_axis(df.iloc[0][1:], axis=1)
 df_isotopes = df_isotopes.set_index(df[0].iloc[10:])
 
+# Valores no registrados en los años de medicion
+for i in range(len(isotope_columns)): 
+    col = isotope_columns[i]
+    missing_count = col.isna().sum()
+    data = pd.DataFrame(col.dropna(), dtype="float")
+    # Seleccionar los años con datos
+    years_with_data = df[0].iloc[data.index]
+    years_data = 1+years_with_data.max()-years_with_data.min() 
+    missing_data = years_data-len(data)
+    missing_percent = (missing_data/years_data)*100 
+    print(
+        df[1+i].iloc[0],": ",round(missing_percent,2), " percent missing",years_data," years of data ", missing_data, " years missing"
+        )
+
 # Metodo 1: Z-score
 print("\nOutlier detection using Z-score method (|Z| > 3):")
 zscore_outliers = {}

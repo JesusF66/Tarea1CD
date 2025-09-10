@@ -79,6 +79,32 @@
 % Problema 1
 
 \begin{soln}
+Recordemos la definición de la matriz Hat:
+\[
+H\coloneqq X{({X^T} X)}^{-1}X^T.
+\]
+Para ver que $H$ es idempotente, notemos que
+\[
+\begin{split}
+  HH &= \left(X{(X^T X)}^{-1}X^T\right)\left(X{(X^T X)}^{-1}X^T\right)\\
+  &= X{(X^T X)}^{-1} \left((X^T X) {(X^T X)}^{-1}\right) X^T\\
+  &= X{(X^T X)}^{-1} X^T\\
+  &= H.
+\end{split}
+\]
+Por consiguiente, $H^2=H$, así que $H$ es idempotente. Por otra parte, veamos que
+\[
+\begin{split}
+  H^T &={\left(X{(X^T X)}^{-1} X^T \right)}^T\\
+  & ={{(X^T)}^T \left({(X^T X)}^{-1}\right)}^T {X}^T\\
+  & =X {\left({\left(X^T X\right)}^T\right)}^{-1} X^T\\
+  & =X {(X^T X)}^{-1} X^T\\
+  & =H.
+\end{split}
+\]
+Por lo tanto, $H^T=H$, así que $H$ es simétrica. Como también es idempotente, entonces $H$ es una matriz de proyección. De hecho, es la proyección ortogonal sobre el espacio de columnas de $X$ (que se asume que tiene rango de columnas completo), y se cumple que $\hat{\boldsymbol{Y}}=H\boldsymbol{Y}$, con la interpretación usual de $\hat{Y}$.
+
+Además, el vector de residuales es $\boldsymbol{e}=(I-H)\boldsymbol{Y}$, y como $H(I-H)=0$ por la idempotencia, entonces $H\boldsymbol{Y}$ es la proyección de $Y$ sobre el espacio de columnas de $X$. Esto implica que $h_{ii}$ mide la influencia de la observación $i$-ésima para el ajuste lineal, que es precisamente el \textit{leverage}.
 \end{soln}
 
 
@@ -183,7 +209,29 @@ Gracias a lo demostrado anteriormente, para cada observación $i$ se puede calcu
 \newpage
 % Problema 4
 \begin{soln}
-
+Sean $\boldsymbol{Y}=(Y_{obs},Y_{mis})$, $\boldsymbol{R}$ el patrón de datos faltantes, $\theta$ los parámetros del modelo y $\psi$ los parámetros del mecanismo de faltantes. Por la definición de MCAR,
+\[
+\probability{\boldsymbol{R}\given \psi} =\probability{\boldsymbol{R}\given Y_{obs},Y_{mis}, \theta, \psi}=\probability{\boldsymbol{R}\given \boldsymbol{Y}, \theta, \psi}.
+\]
+Luego,
+\[
+\begin{split}
+    \probability{\boldsymbol{Y},\boldsymbol{R}\given \theta, \psi} &= 
+    \probability{\boldsymbol{R}\given \boldsymbol{Y},\theta, \psi}\probability{\boldsymbol{Y}\given \theta, \psi} \\
+    &= \probability{\boldsymbol{R}\given \psi}\probability{\boldsymbol{Y}\given \theta, \psi} \\
+    &= \probability{\boldsymbol{R}\given \psi}\probability{\boldsymbol{Y}\given \theta},
+\end{split}
+\]
+pues el mecanismo de faltantes es independiente de los datos, que es lo que queríamos probar. Por lo tanto, la verosimilitud de datos observados para $\theta$ es
+\[
+\begin{split}
+  L_{obs}(\theta) = \int \probability{\boldsymbol{Y}, \boldsymbol{R} \given \theta, \psi} dY_{mis} &= \int \probability{\boldsymbol{R}\given \psi}\probability{Y_{obs}, Y_{mis}\given \theta} dY_{mis}\\
+  &= \probability{\boldsymbol{R}\given \psi}\int \probability{Y_{obs}, Y_{mis}\given \theta} dY_{mis}\\
+  & \propto \int \probability{Y_{obs}, Y_{mis}\given \theta} dY_{mis}\\
+  &= \probability{Y_{obs} \given \theta}.
+\end{split}
+\]
+Por lo tanto, la inferencia sobre $\theta$ puede basarse únicamente en $\probability{Y_{obs} \given \theta}$, ignorando $\probability{\boldsymbol{R}\given \psi}$. 
 \end{soln}
 
 \newpage
@@ -272,7 +320,26 @@ Para concluir ignorabilidad buscamos que $L\left(\theta \given Y_{obs}, \boldsym
 \newpage
 % Problema 7
 \begin{soln}
-
+Sean $\hat{\boldsymbol{\beta}}$ los coeficientes estimados de la regresión completa, y $\hat{\boldsymbol{\beta}}_{(i)}$ los coeficientes estimados sin la observación $i$-ésima. Es un hecho conocido que para la regresión lineal se cumple que
+\[
+\hat{\boldsymbol{\beta}}_{(i)} = \hat{\boldsymbol{\beta}} - {(X^{T} X)}^{-1}\boldsymbol{x}_i \frac{e_i}{1-h_{ii}}.
+\]
+Por otra parte,
+\[
+D_i = \frac{\sum_{j=1}^{n} {\left(\hat{y}_j-\hat{y}_{j(i)}\right)}^2}{p\hat{\sigma}^2} =\frac{\left(\widehat{\boldsymbol{Y}}_{(i)}-\widehat{\boldsymbol{Y}}\right)^{T}\left(\widehat{\boldsymbol{Y}}_{(i)}-\widehat{\boldsymbol{Y}}\right)}{p\hat{\sigma}^2} = \frac{(\widehat{\boldsymbol{\beta}}_{(i)}-\widehat{\boldsymbol{\beta}})^{T}(X^{T}X)\; (\widehat{\boldsymbol{\beta}}_{(i)}-\widehat{\boldsymbol{\beta}})}{p\hat{\sigma}^2}.
+\]
+Por consiguiente,
+\[
+\begin{split}
+  D_i&= \frac{1}{p\hat{\sigma}^2}(\widehat{\boldsymbol{\beta}}_{(i)}-\widehat{\boldsymbol{\beta}})^{T}(X^{T}X)(\widehat{\boldsymbol{\beta}}_{(i)}-\widehat{\boldsymbol{\beta}})\\
+  &= \frac{1}{p\hat{\sigma}^2}\left(\frac{e_i}{1-h_{ii}}\right)^2\boldsymbol{x}_i^{T}(X^{T}X)^{-1}(X^{T}X)(X^{T}X)^{-1}\boldsymbol{x}_i\\
+  &= \frac{1}{p\hat{\sigma}^2}\left(\frac{e_i}{1-h_{ii}}\right)^2\boldsymbol{x}_i^{T}(X^{T}X)^{-1}\boldsymbol{x}_i\\
+  &= \frac{1}{p\hat{\sigma}^2}\left(\frac{e_i}{1-h_{ii}}\right)^2h_{ii}\\
+  &= \left( \frac{e_i}{\hat{\sigma}\sqrt{(1-h_{ii})}} \right)^2\left(\frac{h_{ii}}{p\,(1-h_{ii})}\right)\\
+  &= \frac{r_i^2}{p} \cdot \frac{h_{ii}}{1-h_{ii}}.
+\end{split}
+\]
+La distancia de Cook con la expresión anterior tiene la siguiente interpretación: el término $r_i^2$ mide qué tan alejada se encuentra la observación $i$-ésima del resto de los datos, y esta se multiplica por el factor $\frac{h_{ii}}{1-h_{ii}}$, que mientras más grande la influencia de la observación $i$-ésima ($h_{ii}$), es mayor. Por consiguiente, esta distancia combina la influencia de la observación con su discrepancia con el resto de los datos, dándole mayor peso a observaciones con influencias mayores. Por último, el factor $\frac{1}{p}$ indica que, mientras más complejo es el modelo, las distancias de Cook serán menores, porque el espacio parametral es más amplio.
 \end{soln}
 
 \newpage
@@ -334,7 +401,26 @@ Más aún, por las propiedades de la función logarítmica, los cambios grandes 
 \newpage
 % Problema 10
 \begin{soln}
+(a) La media $\overline{x}$ está dada por
+\[
+\overline{x} = \frac{1+2+3+4+M}{5} = 2+\frac{M}{5},
+\]
+mientras que la desviación estándar de la muestra es
+\[
+\begin{split}
+  s = \sqrt{\sum_{i=1}^{5} {(x_i-\overline{x})}^2} &= \sqrt{{\left(1+\frac{M}{5}\right)}^2+{\left(\frac{M}{5}\right)}^2+{\left(1-\frac{M}{5}\right)}^2+{\left(2-\frac{M}{5}\right)}^2+{\left(2-\frac{4M}{5}\right)}^2}\\
+  &= \sqrt{\frac{4}{5}M^2-4M+10}.
+\end{split}
+\]
 
+(b) Dado que $M\to\infty$, los datos en $x$ están ordenados, y por consiguiente su mediana es $3$ (el de en medio).
+
+Ahora bien, el cuartil $1$ ($Q_{0.25}$) es la mediana de $\left\lbrace 1, 2 \right\rbrace$, que es $\frac{1+2}{2}$. Por otro lado, el tercer cuartil ($Q_{0.75}$) es  la mediana de $\left\lbrace 4, M \right\rbrace$, que es $\frac{4+M}{2}$. Luego, el rango intercuartílico es
+\[
+RIQ = Q_{0.75}-Q_{0.25} = \frac{4+M}{2}-\frac{3}{2} = \frac{1+M}{2}.
+\]
+
+(c) Cuando se hace $M\to\infty$, la media, la desviación estándar y el rango intercuartílico tienden a $\infty$, pero la mediana permanece constante. Como interpretación, $M$ se convierte en un ``outlier'' cuando se vuelve suficientemente grande, y afecta las medidas de tendencia central y de dispersión mencionadas anteriormente, con excepción de la mediana, por lo que esta es más robusta que la media (no es tan sensible a valores extremos).
 \end{soln}
 
 \newpage

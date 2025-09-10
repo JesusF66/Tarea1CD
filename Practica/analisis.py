@@ -114,6 +114,14 @@ for i in range(len(isotope_columns)):
         df[1+i].iloc[0],": ",round(missing_percent,2), " percent missing",years_data," years of data ", missing_data, " years missing"
         )
 
+# Tests de normalidad para cada locacion
+for col_name in df_isotopes:
+    shapiro_test = stats.shapiro(df_isotopes[col_name].dropna()) 
+    if(shapiro_test.pvalue<0.05):
+        print(col_name, " de descarta normalidad con p value ",shapiro_test.pvalue) 
+    else:
+        print(col_name, " no hay evidencia contra la hipotesis nula.") 
+
 # Metodo 1: Z-score
 print("\nOutlier detection using Z-score method (|Z| > 3):")
 zscore_outliers = {}

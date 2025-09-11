@@ -99,6 +99,39 @@ for i in range(len(isotope_columns)):
         print(f"  Outlier values:\n{outliers}")
         print(f"  Outlier years: {outliersyears}")
 
+# Imprime scattler plot con regresion lineal y posibles outliers usando hatmatrix
+for columncode in df_isotopes.columns:
+    # Extraer datos (quitando NA)
+    xd = df_isotopes[columncode].dropna()
+    X = xd.index.to_numpy(dtype=float)
+    y = xd.to_numpy(dtype=float)
+    # Añadir intercepto
+    X1 = np.column_stack([np.ones(X.shape[0]), X])
+    # Calcular beta con mínimos cuadrados
+    beta_hat, *_ = np.linalg.lstsq(X1, y, rcond=None)
+    # Calcular matriz sombrero H
+    H = X1 @ np.linalg.inv(X1.T @ X1) @ X1.T
+    leverages = np.diag(H)
+    # Regla práctica de corte
+    n, p = X1.shape
+    threshold = 2 * p / n
+    # --- Visualización ---
+    plt.figure(figsize=(8, 5))
+    # Resaltar puntos con leverage alto
+    outliers = leverages > threshold
+    plt.scatter(
+        X[np.invert(outliers)], y[np.invert(outliers)], c="blue", alpha=0.6, label="Datos"
+    )
+    plt.scatter(X[outliers], y[outliers], c="red", alpha=0.6, label="Posible outlier")
+    plt.plot(X, X1 @ beta_hat, c="red", label="Recta ajustada")
+    plt.title(
+        f"Relación entre año y carbono en {columncode} con posibles outliers (Hat Matrix)"
+    )
+    plt.xlabel("Año")
+    plt.ylabel("δ¹³C (‰, VPDB)")
+    plt.legend()
+    plt.show()
+
 # Metodo 2: IQR rango intercuantilico
 print("\nOutlier detection using IQR method:")
 iqr_outliers = {}

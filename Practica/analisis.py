@@ -9,6 +9,10 @@ import seaborn as sns
 # %%
 
 # Establecemos el working directory
+os.chdir(".\\Practica\\Data\\2023-Data")
+
+# =====================================
+# Vuelvo a importar. Hay que ponerse de acuerdo con los nombres de variables
 os.chdir(".\\Data\\2023-Data")
 
 # %%
@@ -42,7 +46,7 @@ df_isotopes = pd.DataFrame(isotope_columns).T
 df_isotopes = pd.DataFrame(df_isotopes, dtype="float")
 df_isotopes = df_isotopes.set_axis(df.iloc[0][1:], axis=1)
 df_isotopes = df_isotopes.set_index(df[0].iloc[10:])
-
+print(df_isotopes)
 # Valores no registrados en los años de medicion
 for i in range(len(isotope_columns)):
     col = isotope_columns[i]
@@ -144,7 +148,7 @@ plt.tight_layout()
 plt.show()
 
 # Inconsistencias o codificacion ambigua
-
+print(df)
 # Revisamos si hay fechas duplicadas
 duplicate_years = df[0].iloc[10:].duplicated()
 if duplicate_years.any():
@@ -164,7 +168,7 @@ for i in range(len(isotope_columns)):
     if len(data) > 0:
         years_with_data = df[0].iloc[data.index]
         print(
-            f"{df[i].iloc[0]}: {years_with_data.min()} - {years_with_data.max()} "
+            f"{df[i].iloc[0]}: {years_with_data.min()} - {years_with_data.max()}"
             + f"({len(data)} years of data)"
         )
 
@@ -175,15 +179,112 @@ print(f"\nNumber of different codes: {len(df.iloc[:, 1:].iloc[0].unique())}")
 print(f"\nNumber of different countries: {len(df.iloc[:, 1:].iloc[2].unique())}")
 
 # Imprimimos el numero de diferentes especies
-print(f"\nNumber of different species: {len(df.iloc[:, 1:].iloc[5].unique())}")
+print(f"\nNumber of different species: {len(df[1:].iloc[5].unique())}")
 
 # 3. IMPUTACION DE DATOS
+#Porcentaje de datos faltantes por rango de tiempo de cuando iniciaron las mediciones a cuiando terminaron
+for i in range(len(isotope_columns)):
+    col = isotope_columns[i]
+    data = col.dropna()
+    years_with_data = df[0].iloc[data.index]
+   #print(len(years_with_data)  )
+    total_years = years_with_data.max() - years_with_data.min() + 1 
+    
+    missing_years = total_years - data.shape[0]
+    missing_percentage = (missing_years / total_years) * 100
+    print(
+        f"{df[i+1].iloc[0]}: {missing_percentage:.2f}% missing data "
+        + f"({missing_years} out of {total_years} years)"
+    )
 
 # Reemplazo con media
 df_mean_imput = df_isotopes.fillna(df_isotopes.mean())
-
 # Reemplazo con interpolacion lineal
 df_linear_imput = df_isotopes.interpolate(method="linear")
+#Reemplazo con simulación normal
+from scipy.stats import anderson # Prueba de normalidad Anderson-Darling
+# Creamos un arreglo vacío para almacenar los estadísticos
+# Diccionario para almacenar los resultados
+results_dict = {
+    "column": [],
+    "statistic": [],
+    "critical_values": [],
+    "significance_levels": []
+}
+
+# Iteramos por cada columna
+for col in df_isotopes.columns:
+    data = df_isotopes[col].dropna()  # Eliminamos NaN
+    result = anderson(data)
+    
+    results_dict["column"].append(col)
+    results_dict["statistic"].append(result.statistic)
+    results_dict["critical_values"].append(result.critical_values)
+    results_dict["significance_levels"].append(result.significance_level)
+
+# Convertimos el diccionario a DataFrame
+results_df = pd.DataFrame(results_dict)
+
+# Para visualizar mejor los arrays, podemos convertirlos a strings
+results_df["critical_values"] = results_df["critical_values"].apply(lambda x: np.array2string(x))
+results_df["significance_levels"] = results_df["significance_levels"].apply(lambda x: np.array2string(x))
+
+print(results_df)
+
+
+
+
+# Para guardarlos en archivos de Excel
+df_mean_imput.to_excel("meanimputation.xlsx")
+df_linear_imput.to_excel("linearimputation.xlsx")
+
+
+
+
+
+# --- 1. Prueba de normalidad Anderson–Darling ---
+
+print("\n--- Anderson-Darling Test ---")
+print("Estadístico A²:", result.statistic)
+for cv, sig in zip(result.critical_values, result.significance_level):
+    print(f"Nivel de significancia {sig}% -> Valor crítico: {cv}")
+if result.statistic < result.critical_values[2]:
+    print("No se rechaza normalidad (al 5%)")
+else:
+    print("Se rechaza normalidad (al 5%)")
+
+# --- 2. Imputación suponiendo normalidad ---
+mu, sigma = np.mean(observed), np.std(observed, ddof=1)
+
+# Generamos valores imputados desde N(mu, sigma^2)
+imputed_values = np.random.normal(loc=mu, scale=sigma, size=df["x"].isna().sum())
+
+# Reemplazamos en el DataFrame
+df.loc[df["x"].isna(), "x"] = imputed_values
+
+print("\nDatos tras imputación (primeros 10):\n", df.head(10))
+
+plt.plot(df['columna_datos'], 
+         marker='o',           # Mostrar puntos con círculos
+         linestyle='-',        # Línea sólida
+         linewidth=1.5,        # Grosor de línea
+         markersize=4,         # Tamaño de los puntos
+         color='blue',         # Color de la línea y puntos
+         alpha=0.7)            # Transparencia
+
+# Personalizar el gráfico
+plt.title('Datos de la Columna con Línea y Puntos', fontsize=14)
+plt.xlabel('Índice (Orden de los Datos)', fontsize=12)
+plt.ylabel('Valor', fontsize=12)
+plt.grid(True, alpha=0.3)      # Cuadrícula suave
+
+# Mostrar el gráfico
+plt.tight_layout()
+plt.show()
+
+
+
+
 
 # Para guardarlos en archivos de Excel
 # df_mean_imput.to_excel("meanimputation.xlsx")

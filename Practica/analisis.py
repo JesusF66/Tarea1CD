@@ -9,7 +9,9 @@ import seaborn as sns
 # %%
 
 # Establecemos el working directory
-os.chdir(".\\Practica\\Data\\2023-Data")
+os.chdir(".\\Data\\2023-Data")
+
+# %%
 
 # Lectura de datos
 df = pd.read_excel("data.xlsx", header=None)
@@ -101,26 +103,33 @@ df_isotopes = df_isotopes.set_axis(df.iloc[0][1:], axis=1)
 df_isotopes = df_isotopes.set_index(df[0].iloc[10:])
 
 # Valores no registrados en los años de medicion
-for i in range(len(isotope_columns)): 
+for i in range(len(isotope_columns)):
     col = isotope_columns[i]
     missing_count = col.isna().sum()
     data = pd.DataFrame(col.dropna(), dtype="float")
     # Seleccionar los años con datos
     years_with_data = df[0].iloc[data.index]
-    years_data = 1+years_with_data.max()-years_with_data.min() 
-    missing_data = years_data-len(data)
-    missing_percent = (missing_data/years_data)*100 
+    years_data = 1 + years_with_data.max() - years_with_data.min()
+    missing_data = years_data - len(data)
+    missing_percent = (missing_data / years_data) * 100
     print(
-        df[1+i].iloc[0],": ",round(missing_percent,2), " percent missing",years_data," years of data ", missing_data, " years missing"
-        )
+        df[1 + i].iloc[0],
+        ": ",
+        round(missing_percent, 2),
+        " percent missing",
+        years_data,
+        " years of data ",
+        missing_data,
+        " years missing",
+    )
 
 # Tests de normalidad para cada locacion
 for col_name in df_isotopes:
-    shapiro_test = stats.shapiro(df_isotopes[col_name].dropna()) 
-    if(shapiro_test.pvalue<0.05):
-        print(col_name, " de descarta normalidad con p value ",shapiro_test.pvalue) 
+    shapiro_test = stats.shapiro(df_isotopes[col_name].dropna())
+    if shapiro_test.pvalue < 0.05:
+        print(col_name, " se descarta normalidad con p value ", shapiro_test.pvalue)
     else:
-        print(col_name, " no hay evidencia contra la hipotesis nula.") 
+        print(col_name, " no hay evidencia contra la hipótesis nula.")
 
 # Metodo 1: Z-score
 print("\nOutlier detection using Z-score method (|Z| > 3):")
@@ -219,13 +228,13 @@ for i in range(len(isotope_columns)):
         )
 
 # Imprimimos el numero de diferentes codigos de zonas
-print(f"\nNumber of different codes: {len(df[1:].iloc[0].unique())}")
+print(f"\nNumber of different codes: {len(df.iloc[:, 1:].iloc[0].unique())}")
 
 # Imprimimos el numero de diferentes paises
-print(f"\nNumber of different countries: {len(df[1:].iloc[2].unique())}")
+print(f"\nNumber of different countries: {len(df.iloc[:, 1:].iloc[2].unique())}")
 
 # Imprimimos el numero de diferentes especies
-print(f"\nNumber of different species: {len(df[1:].iloc[5].unique())}")
+print(f"\nNumber of different species: {len(df.iloc[:, 1:].iloc[5].unique())}")
 
 # 3. IMPUTACION DE DATOS
 
@@ -244,7 +253,7 @@ df_linear_imput = df_isotopes.interpolate(method="linear")
 
 # 5. Visualizacion exploratoria
 
-columnnumber = 5  # Del 0 al 24
+columnnumber = 2  # Del 0 al 24
 columncode = df_isotopes.columns[columnnumber]
 sitename = df.iloc[1][columnnumber + 1]
 
@@ -252,11 +261,14 @@ fig, axes = plt.subplots(1, 2, figsize=(15, 6))
 
 # Histograma
 sns.histplot(df_isotopes[columncode].dropna(), kde=False, ax=axes[0], color="skyblue")
-axes[0].set_title(f"Histograma: {sitename}")
+axes[0].set_title(f"Histograma de {sitename}")
 
+axes[0].set_xlabel("δ¹³C (‰, VPDB)")
 # Densidad kernel
 sns.kdeplot(df_isotopes[columncode].dropna(), ax=axes[1], color="green", fill=True)
-axes[1].set_title(f"Densidad kernel: {sitename}")
+axes[1].set_title(f"Densidad kernel estimada de {sitename}")
+
+axes[1].set_xlabel("δ¹³C (‰, VPDB)")
 
 plt.show()
 
@@ -271,6 +283,31 @@ sns.histplot(
 ax.set_title(f"Histograma y densidad kernel: {sitename}")
 
 plt.show()
+
+# Graficas de dispersion para mismas especies pero de diferentes sitios
+
+# Hacemos un diccionario con las diferentes especies y columnas
+different_species = df.iloc[:, 1:].iloc[5].value_counts().to_dict()
+
+for species in different_species:
+    subdata_columns = df.columns[df.iloc[5] == species]
+    subdata = df.iloc[10:, subdata_columns]
+    subdata = subdata.set_axis(df.iloc[0, subdata_columns], axis=1)
+    subdata = subdata.set_index(df.iloc[10:, 0])
+
+    plt.figure(figsize=(8, 5))
+    for location in subdata.columns:
+        # Extraer datos (quitando NA)
+        data_withoutna = subdata[location].dropna()
+        X = data_withoutna.index.to_numpy(dtype=float)
+        y = data_withoutna.to_numpy(dtype=float)
+        plt.scatter(X, y, alpha=0.6, label=location)
+    plt.title(f"Datos de la especie {species}")
+    plt.ylabel("δ¹³C (‰, VPDB)")
+    plt.xlabel("Año")
+    plt.legend()
+    plt.show()
+
 
 # Relacion entre fecha y carbono (datos imputados con media)
 
@@ -312,7 +349,7 @@ plt.title(
     f"Relación entre año y carbono en {sitename} con posibles outliers (Hat Matrix)"
 )
 plt.xlabel("Año")
-plt.ylabel("Carbono")
+plt.ylabel("δ¹³C (‰, VPDB)")
 plt.legend()
 plt.show()
 
@@ -335,7 +372,7 @@ x_outlier = [year for year in years if year in zscore_outliers[columnnumber]]
 y_no_outlier = [data_without_na[year] for year in x_no_outlier]
 y_outlier = [data_without_na[year] for year in x_outlier]
 
-plt.title(f"Possible outliers on {sitename} with Z-score")
+plt.title(f"Posibles outliers en {sitename} con Z-score")
 plt.scatter(x_no_outlier, y_no_outlier, c="blue", alpha=0.6)
 plt.scatter(
     x_outlier,
@@ -343,10 +380,10 @@ plt.scatter(
     facecolors="red",
     edgecolors="r",
     alpha=0.6,
-    label="Possible outliers",
+    label="Posibles outliers",
 )
-plt.ylabel(f"{sitename}")
-plt.xlabel("Carbón")
+plt.ylabel("δ¹³C (‰, VPDB)")
+plt.xlabel("Año")
 plt.legend()
 plt.show()
 
@@ -363,7 +400,7 @@ y_no_outlier = [data_without_na[year] for year in x_no_outlier]
 y_outlier = [data_without_na[year] for year in x_outlier]
 
 
-plt.title(f"Possible outliers on {sitename} with IQR")
+plt.title(f"Posibles outlierss en {sitename} con RIQ")
 plt.scatter(x_no_outlier, y_no_outlier, c="blue", alpha=0.6)
 plt.scatter(
     x_outlier,
@@ -371,9 +408,11 @@ plt.scatter(
     facecolors="red",
     edgecolors="r",
     alpha=0.6,
-    label="Possible outliers",
+    label="Posibles outliers",
 )
-plt.ylabel(f"{sitename}")
-plt.xlabel("Carbón")
+plt.ylabel("δ¹³C (‰, VPDB)")
+plt.xlabel("Año")
 plt.legend()
 plt.show()
+
+# %%

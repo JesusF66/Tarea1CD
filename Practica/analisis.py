@@ -221,8 +221,8 @@ sns.histplot(
     df_isotopes[columncode].dropna(), kde=True, ax=ax, color="skyblue", stat="density"
 )
 
-ax.set_title(f"Histograma y densidad kernel: {sitename}")
-
+ax.set_title(f"Histograma y densidad kernel de {sitename}")
+plt.xlabel("δ¹³C (‰, VPDB)")
 plt.show()
 
 # Graficas de dispersion para mismas especies pero de diferentes sitios

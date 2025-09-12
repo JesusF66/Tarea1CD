@@ -214,6 +214,13 @@ print(f"\nNumber of different countries: {len(df.iloc[:, 1:].iloc[2].unique())}"
 # Imprimimos el numero de diferentes especies
 print(f"\nNumber of different species: {len(df[1:].iloc[5].unique())}")
 
+
+
+
+
+
+
+
 # 3. IMPUTACION DE DATOS
 #Porcentaje de datos faltantes por rango de tiempo de cuando iniciaron las mediciones a cuiando terminaron
 for i in range(len(isotope_columns)):
@@ -230,8 +237,32 @@ for i in range(len(isotope_columns)):
         + f"({missing_years} out of {total_years} years)"
     )
 
+
+
+
 # Reemplazo con media
-df_mean_imput = df_isotopes.fillna(df_isotopes.mean())
+df_mean_imput = df_isotopes.copy()
+
+for nameip in df_isotopes.columns:
+    col = df_isotopes[nameip]
+    data = col.dropna()
+    years_with_data = data.index
+    
+    # Seleccionar los años dentro del rango de datos y que son NaN
+    missing_years = df_isotopes.index[
+        df_isotopes.index.isin(range(years_with_data.min(), years_with_data.max() + 1)) 
+        & df_isotopes[nameip].isna()
+    ]
+    
+    # Imputar con la media de la columna solo en los años faltantes
+    df_mean_imput.loc[missing_years, nameip] = df_isotopes[nameip].mean()
+    print(len(df_mean_imput[nameip].dropna()) )
+
+
+
+
+
+
 # Reemplazo con interpolacion lineal
 df_linear_imput = df_isotopes.interpolate(method="linear")
 #Reemplazo con simulación normal
@@ -258,42 +289,51 @@ for col in df_isotopes.columns:
 # Convertimos el diccionario a DataFrame
 results_df = pd.DataFrame(results_dict)
 
-# Para visualizar mejor los arrays, podemos convertirlos a strings
-results_df["critical_values"] = results_df["critical_values"].apply(lambda x: np.array2string(x))
-results_df["significance_levels"] = results_df["significance_levels"].apply(lambda x: np.array2string(x))
+
 
 print(results_df)
 
+#IMPUTAMOS CON EN LAS COLUMNAS QUE SEA POSIBLE MEDIANTE UNA NORMAL.
+plt.ion()
+df_isotopes2 = df_isotopes.copy()
+
+for cv, sig,nameip in zip(results_df.critical_values, results_df.statistic,results_df.column):
+    print(f"Estadistico  {sig}% -> Valor crítico: {cv[2]}")
+    if sig < cv[2]:
+       print("No se rechaza normalidad (al 5%)")
+       col = df_isotopes[nameip]
+       data = col.dropna()
+       years_with_data = data.index
+       #df_isotopes[df_isotopes[nameip].notnull()]  
+       missing_years = df_isotopes.index[
+       df_isotopes.index.isin(range(years_with_data.min(), years_with_data.max() + 1)) 
+       & df_isotopes[nameip].isna()
+       ]
+
+# Genera tantos valores como datos faltantes
+       np.random.seed(42)
+       imputed_values = np.random.normal(loc=mu, scale=sigma, size=len(missing_years))
+       
+# Asigna directamente a esas posiciones
+       df_isotopes2.loc[missing_years, nameip] = imputed_values
+       #print(len(df_isotopes2[nameip].dropna()) )
+        # --- GRAFICO COMPARATIVO ---
+       plt.figure(figsize=(8,5))
+
+       plt.hist(col.dropna(), bins=20, color="black", edgecolor="black", alpha=0.6, label="Antes de imputar")
+       plt.hist(df_isotopes2[nameip].dropna(), bins=20, color="salmon", edgecolor="black", alpha=0.6, label="Después de imputar")
+
+       plt.title(f"{nameip} - Comparación antes vs después")
+       plt.xlabel("Valor")
+       plt.ylabel("Frecuencia")
+       plt.legend()
+       plt.show()
+    else:
+         print("Se rechaza normalidad (al 5%)")
 
 
 
-# Para guardarlos en archivos de Excel
-df_mean_imput.to_excel("meanimputation.xlsx")
-df_linear_imput.to_excel("linearimputation.xlsx")
 
-
-
-
-
-# --- 1. Prueba de normalidad Anderson–Darling ---
-
-print("\n--- Anderson-Darling Test ---")
-print("Estadístico A²:", result.statistic)
-for cv, sig in zip(result.critical_values, result.significance_level):
-    print(f"Nivel de significancia {sig}% -> Valor crítico: {cv}")
-if result.statistic < result.critical_values[2]:
-    print("No se rechaza normalidad (al 5%)")
-else:
-    print("Se rechaza normalidad (al 5%)")
-
-# --- 2. Imputación suponiendo normalidad ---
-mu, sigma = np.mean(observed), np.std(observed, ddof=1)
-
-# Generamos valores imputados desde N(mu, sigma^2)
-imputed_values = np.random.normal(loc=mu, scale=sigma, size=df["x"].isna().sum())
-
-# Reemplazamos en el DataFrame
-df.loc[df["x"].isna(), "x"] = imputed_values
 
 print("\nDatos tras imputación (primeros 10):\n", df.head(10))
 
@@ -314,6 +354,20 @@ plt.grid(True, alpha=0.3)      # Cuadrícula suave
 # Mostrar el gráfico
 plt.tight_layout()
 plt.show()
+
+
+
+
+# Para guardarlos en archivos de Excel
+df_mean_imput.to_excel("meanimputation.xlsx")
+df_linear_imput.to_excel("linearimputation.xlsx")
+
+
+
+
+
+
+
 
 
 

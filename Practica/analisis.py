@@ -511,7 +511,7 @@ y_no_outlier = [data_without_na[year] for year in x_no_outlier]
 y_outlier = [data_without_na[year] for year in x_outlier]
 
 
-plt.title(f"Posibles outlierss en {sitename} con RIQ")
+plt.title(f"Posibles outliers en {sitename} con RIQ")
 plt.scatter(x_no_outlier, y_no_outlier, c="blue", alpha=0.6)
 plt.scatter(
     x_outlier,

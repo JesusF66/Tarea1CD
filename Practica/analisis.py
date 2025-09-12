@@ -362,6 +362,61 @@ plt.show()
 
 # 4. Codificacion y escalamiento
 
+# Escalamiento min max y z score
+for cv, sig, nameip in zip(
+    results_df.critical_values, results_df.statistic, results_df.column
+): 
+    xd = df_isotopes[nameip].dropna()
+    X = xd.index.to_numpy(dtype=float)
+    y = xd.to_numpy(dtype=float)
+
+    if sig < cv[2]:  
+        # Columna actual
+        col = df_isotopes[nameip]
+        data = col.dropna()
+
+        # Calcular parámetros de la distribución normal
+        mu, sigma = data.mean(), data.std()
+
+        # z scores
+        data_z = (data-mu)/sigma 
+
+        # min max 
+        data_minMax = (data-min(data))/(max(data)-min(data)) 
+
+        # Grafica z score y minmax
+        plt.scatter(X, data_minMax, alpha=0.6, label = "min-max")
+        plt.scatter(X, data_z, alpha=0.6, label = "z-score")
+        plt.title(f"Escalamiento de {nameip}")
+        plt.ylabel("δ¹³C escalado")
+        plt.xlabel("Año")
+        plt.legend()
+        plt.show() 
+
+        # Grafica solo min max 
+        plt.scatter(X, data_minMax, alpha=0.6)
+        plt.title(f"Min max de {nameip}")
+        plt.ylabel("δ¹³C escalado")
+        plt.xlabel("Año")
+        plt.legend()
+        plt.show() 
+    else:
+        # Se rechaza normalidad y solo se escala min max
+        print(f"Se descarta rechaza para {nameip}")
+        col = df_isotopes[nameip]
+        data = col.dropna()
+
+        # min max 
+        data_minMax = (data-min(data))/(max(data)-min(data))  
+
+        # Grafica solo min max 
+        plt.scatter(X, data_minMax, alpha=0.6)
+        plt.title(f"Min max de {nameip}")
+        plt.ylabel("δ¹³C escalado")
+        plt.xlabel("Año")
+        plt.legend()
+        plt.show() 
+
 # 5. Visualizacion exploratoria
 
 columnnumber = 2  # Del 0 al 24

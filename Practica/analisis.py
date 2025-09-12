@@ -166,44 +166,28 @@ fig, axes = plt.subplots(1, 2, figsize=(15, 6))
 # Z-score
 zscore_counts = [len(zscore_outliers[i]) for i in range(len(df.columns) - 1)]
 axes[0].bar([df[i + 1].iloc[0] for i in range(len(isotope_columns))], zscore_counts)
-axes[0].set_title("Outliers detected by Z-score method (|Z| > 3)", fontweight="bold")
-axes[0].set_ylabel("Number of outliers")
+axes[0].set_title("Outliers detectados por Z-score (|Z| > 3)", fontweight="bold")
+axes[0].set_ylabel("Número de outliers")
 axes[0].tick_params(axis="x", rotation=45)
 
 # IQR
 iqr_counts = [len(iqr_outliers[i]) for i in range(len(df.columns) - 1)]
 axes[1].bar([df[i + 1].iloc[0] for i in range(len(isotope_columns))], iqr_counts)
-axes[1].set_title("Outliers detected by IQR method", fontweight="bold")
-axes[1].set_ylabel("Number of outliers")
+axes[1].set_title("Outliers detectados por RIQ", fontweight="bold")
+axes[1].set_ylabel("Número de outliers")
 axes[1].tick_params(axis="x", rotation=45)
 
 plt.tight_layout()
 plt.show()
 
 # Inconsistencias o codificacion ambigua
-print(df)
-# Revisamos si hay fechas duplicadas
 duplicate_years = df[0].iloc[10:].duplicated()
 if duplicate_years.any():
-    print(f"Warning: {duplicate_years.sum()} duplicate years found!")
+    print(f"{duplicate_years.sum()} fechas duplicadas encontradas")
     print(df["Year CE"][duplicate_years].values)
 else:
-    print("No duplicate years found.")
+    print("No hay fechas duplicadas.")
 
-# Imprimimos el rango de fechas disponibles para cada localizacion
-print("\nYear range for each site:")
-
-for i in range(len(isotope_columns)):
-    # Remove NA values for calculation
-    col = isotope_columns[i]
-    data = pd.DataFrame(col.dropna(), dtype="float")
-
-    if len(data) > 0:
-        years_with_data = df[0].iloc[data.index]
-        print(
-            f"{df[i].iloc[0]}: {years_with_data.min()} - {years_with_data.max()}"
-            + f"({len(data)} years of data)"
-        )
 
 # Imprimimos el numero de diferentes codigos de zonas
 print(f"\nNumber of different codes: {len(df.iloc[:, 1:].iloc[0].unique())}")
@@ -211,9 +195,14 @@ print(f"\nNumber of different codes: {len(df.iloc[:, 1:].iloc[0].unique())}")
 # Imprimimos el numero de diferentes paises
 print(f"\nNumber of different countries: {len(df.iloc[:, 1:].iloc[2].unique())}")
 
+# Imprimimos los distintos paises que hay
+print(f"\nDistinct countries: {df.iloc[:, 1:].iloc[2].unique()}")
+
 # Imprimimos el numero de diferentes especies
 print(f"\nNumber of different species: {len(df.iloc[:, 1:].iloc[5].unique())}")
 
+# Imprimimos las distintas especies que hay
+print(f"\nDistinct species: {df.iloc[:, 1:].iloc[5].unique()}")
 
 # 3. IMPUTACION DE DATOS
 # Porcentaje de datos faltantes por rango de tiempo de cuando iniciaron las mediciones a cuiando terminaron

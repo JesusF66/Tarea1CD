@@ -9,10 +9,6 @@ import seaborn as sns
 # %%
 
 # Establecemos el working directory
-os.chdir(".\\Practica\\Data\\2023-Data")
-
-# =====================================
-# Vuelvo a importar. Hay que ponerse de acuerdo con los nombres de variables
 os.chdir(".\\Data\\2023-Data")
 
 # %%
@@ -120,7 +116,11 @@ for columncode in df_isotopes.columns:
     # Resaltar puntos con leverage alto
     outliers = leverages > threshold
     plt.scatter(
-        X[np.invert(outliers)], y[np.invert(outliers)], c="blue", alpha=0.6, label="Datos"
+        X[np.invert(outliers)],
+        y[np.invert(outliers)],
+        c="blue",
+        alpha=0.6,
+        label="Datos",
     )
     plt.scatter(X[outliers], y[outliers], c="red", alpha=0.6, label="Posible outlier")
     plt.plot(X, X1 @ beta_hat, c="red", label="Recta ajustada")
@@ -215,29 +215,21 @@ print(f"\nNumber of different countries: {len(df.iloc[:, 1:].iloc[2].unique())}"
 print(f"\nNumber of different species: {len(df[1:].iloc[5].unique())}")
 
 
-
-
-
-
-
-
 # 3. IMPUTACION DE DATOS
-#Porcentaje de datos faltantes por rango de tiempo de cuando iniciaron las mediciones a cuiando terminaron
+# Porcentaje de datos faltantes por rango de tiempo de cuando iniciaron las mediciones a cuiando terminaron
 for i in range(len(isotope_columns)):
     col = isotope_columns[i]
     data = col.dropna()
     years_with_data = df[0].iloc[data.index]
-   #print(len(years_with_data)  )
-    total_years = years_with_data.max() - years_with_data.min() + 1 
-    
+    # print(len(years_with_data)  )
+    total_years = years_with_data.max() - years_with_data.min() + 1
+
     missing_years = total_years - data.shape[0]
     missing_percentage = (missing_years / total_years) * 100
     print(
         f"{df[i+1].iloc[0]}: {missing_percentage:.2f}% missing data "
         + f"({missing_years} out of {total_years} years)"
     )
-
-
 
 
 # Reemplazo con media
@@ -247,40 +239,37 @@ for nameip in df_isotopes.columns:
     col = df_isotopes[nameip]
     data = col.dropna()
     years_with_data = data.index
-    
+
     # Seleccionar los años dentro del rango de datos y que son NaN
     missing_years = df_isotopes.index[
-        df_isotopes.index.isin(range(years_with_data.min(), years_with_data.max() + 1)) 
+        df_isotopes.index.isin(range(years_with_data.min(), years_with_data.max() + 1))
         & df_isotopes[nameip].isna()
     ]
-    
+
     # Imputar con la media de la columna solo en los años faltantes
     df_mean_imput.loc[missing_years, nameip] = df_isotopes[nameip].mean()
-    print(len(df_mean_imput[nameip].dropna()) )
-
-
-
-
+    print(len(df_mean_imput[nameip].dropna()))
 
 
 # Reemplazo con interpolacion lineal
 df_linear_imput = df_isotopes.interpolate(method="linear")
-#Reemplazo con simulación normal
-from scipy.stats import anderson # Prueba de normalidad Anderson-Darling
+# Reemplazo con simulación normal
+from scipy.stats import anderson  # Prueba de normalidad Anderson-Darling
+
 # Creamos un arreglo vacío para almacenar los estadísticos
 # Diccionario para almacenar los resultados
 results_dict = {
     "column": [],
     "statistic": [],
     "critical_values": [],
-    "significance_levels": []
+    "significance_levels": [],
 }
 
 # Iteramos por cada columna
 for col in df_isotopes.columns:
     data = df_isotopes[col].dropna()  # Eliminamos NaN
     result = anderson(data)
-    
+
     results_dict["column"].append(col)
     results_dict["statistic"].append(result.statistic)
     results_dict["critical_values"].append(result.critical_values)
@@ -290,87 +279,91 @@ for col in df_isotopes.columns:
 results_df = pd.DataFrame(results_dict)
 
 
-
 print(results_df)
 
-#IMPUTAMOS CON EN LAS COLUMNAS QUE SEA POSIBLE MEDIANTE UNA NORMAL.
+# IMPUTAMOS CON EN LAS COLUMNAS QUE SEA POSIBLE MEDIANTE UNA NORMAL.
 plt.ion()
 df_isotopes2 = df_isotopes.copy()
 
-for cv, sig,nameip in zip(results_df.critical_values, results_df.statistic,results_df.column):
-    print(f"Estadistico  {sig}% -> Valor crítico: {cv[2]}")
+for cv, sig, nameip in zip(
+    results_df.critical_values, results_df.statistic, results_df.column
+):
+    print(f"{nameip}. Estadístico {sig} -> Valor crítico: {cv[2]}")
+
     if sig < cv[2]:
-       print("No se rechaza normalidad (al 5%)")
-       col = df_isotopes[nameip]
-       data = col.dropna()
-       years_with_data = data.index
-       #df_isotopes[df_isotopes[nameip].notnull()]  
-       missing_years = df_isotopes.index[
-       df_isotopes.index.isin(range(years_with_data.min(), years_with_data.max() + 1)) 
-       & df_isotopes[nameip].isna()
-       ]
+        print("No se rechaza normalidad (al 5%)")
 
-# Genera tantos valores como datos faltantes
-       np.random.seed(42)
-       imputed_values = np.random.normal(loc=mu, scale=sigma, size=len(missing_years))
-       
-# Asigna directamente a esas posiciones
-       df_isotopes2.loc[missing_years, nameip] = imputed_values
-       #print(len(df_isotopes2[nameip].dropna()) )
+        # Columna actual
+        col = df_isotopes[nameip]
+        data = col.dropna()
+
+        # Calcular parámetros de la distribución normal
+        mu, sigma = data.mean(), data.std()
+
+        # Identificar años faltantes dentro del rango observado
+        years_with_data = data.index
+        missing_years = df_isotopes.index[
+            df_isotopes.index.isin(
+                range(years_with_data.min(), years_with_data.max() + 1)
+            )
+            & df_isotopes[nameip].isna()
+        ]
+
+        # Generar valores imputados con normal(mu, sigma)
+        np.random.seed(42)
+        imputed_values = np.random.normal(loc=mu, scale=sigma, size=len(missing_years))
+
+        # Reemplazar en el DataFrame
+        df_isotopes2.loc[missing_years, nameip] = imputed_values
+
         # --- GRAFICO COMPARATIVO ---
-       plt.figure(figsize=(8,5))
+        plt.figure(figsize=(8, 5))
+        plt.hist(
+            col.dropna(),
+            bins=20,
+            color="black",
+            edgecolor="black",
+            alpha=0.6,
+            label="Antes de imputar",
+        )
+        plt.hist(
+            df_isotopes2[nameip].dropna(),
+            bins=20,
+            color="salmon",
+            edgecolor="black",
+            alpha=0.6,
+            label="Después de imputar",
+        )
+        plt.title(f"{nameip} - Comparación antes vs después")
+        plt.xlabel("Valor δ13C (‰ VPDB)")
+        plt.ylabel("Frecuencia")
+        plt.legend()
+        plt.show()
 
-       plt.hist(col.dropna(), bins=20, color="black", edgecolor="black", alpha=0.6, label="Antes de imputar")
-       plt.hist(df_isotopes2[nameip].dropna(), bins=20, color="salmon", edgecolor="black", alpha=0.6, label="Después de imputar")
-
-       plt.title(f"{nameip} - Comparación antes vs después")
-       plt.xlabel("Valor")
-       plt.ylabel("Frecuencia")
-       plt.legend()
-       plt.show()
     else:
-         print("Se rechaza normalidad (al 5%)")
+        print("Se rechaza normalidad (al 5%)")
 
+# Mostrar una parte del dataframe imputado
+print("\nDatos tras imputación (primeros 10):\n", df_isotopes2.head(10))
 
+# --- EJEMPLO DE GRÁFICO DE SERIE TEMPORAL ---
+plt.figure(figsize=(8, 5))
+plt.plot(
+    df_isotopes2[nameip],
+    marker="o",
+    linestyle="-",
+    linewidth=1.5,
+    markersize=4,
+    color="blue",
+    alpha=0.7,
+)
 
-
-
-print("\nDatos tras imputación (primeros 10):\n", df.head(10))
-
-plt.plot(df['columna_datos'], 
-         marker='o',           # Mostrar puntos con círculos
-         linestyle='-',        # Línea sólida
-         linewidth=1.5,        # Grosor de línea
-         markersize=4,         # Tamaño de los puntos
-         color='blue',         # Color de la línea y puntos
-         alpha=0.7)            # Transparencia
-
-# Personalizar el gráfico
-plt.title('Datos de la Columna con Línea y Puntos', fontsize=14)
-plt.xlabel('Índice (Orden de los Datos)', fontsize=12)
-plt.ylabel('Valor', fontsize=12)
-plt.grid(True, alpha=0.3)      # Cuadrícula suave
-
-# Mostrar el gráfico
+plt.title(f"Serie temporal de {nameip}", fontsize=14)
+plt.xlabel("Año", fontsize=12)
+plt.ylabel("δ13C (‰ VPDB)", fontsize=12)
+plt.grid(True, alpha=0.3)
 plt.tight_layout()
 plt.show()
-
-
-
-
-# Para guardarlos en archivos de Excel
-df_mean_imput.to_excel("meanimputation.xlsx")
-df_linear_imput.to_excel("linearimputation.xlsx")
-
-
-
-
-
-
-
-
-
-
 
 
 # Para guardarlos en archivos de Excel

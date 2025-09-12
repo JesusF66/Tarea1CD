@@ -212,7 +212,7 @@ print(f"\nNumber of different codes: {len(df.iloc[:, 1:].iloc[0].unique())}")
 print(f"\nNumber of different countries: {len(df.iloc[:, 1:].iloc[2].unique())}")
 
 # Imprimimos el numero de diferentes especies
-print(f"\nNumber of different species: {len(df[1:].iloc[5].unique())}")
+print(f"\nNumber of different species: {len(df.iloc[:, 1:].iloc[5].unique())}")
 
 
 # 3. IMPUTACION DE DATOS

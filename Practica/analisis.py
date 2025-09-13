@@ -362,43 +362,80 @@ plt.show()
 
 # 4. Codificacion y escalamiento
 
+# Codificacion de paises
+country_names = pd.get_dummies(df.iloc[2, 1:], drop_first=False)
+# Codificacion de especies
+species_names = pd.get_dummies(df.iloc[5, 1:], drop_first=False)
+
+# Escalamiento de variables geograficas: altitud, latitud y longitud
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
+
+z_scaler = StandardScaler()
+minmax_scaler = MinMaxScaler()
+df_geographic = (
+    df.iloc[[3, 4, 8], 1:]
+    .set_axis(df.iloc[0, 1:], axis=1)
+    .set_axis(df.iloc[[3, 4, 8], 0], axis=0)
+)
+
+df_geographic.iloc[2, 9] = 60  # Correccion de dato faltante con investigado
+
+df_geo_T = df_geographic.T
+df_geo_T.index.name = "Site"
+df_geo_T.reset_index(inplace=True)
+
+num_cols = ["Latitude", "Longitude", "elevation a.s.l."]
+
+# --- Z-score ---
+scaler = StandardScaler()
+df_zscore = df_geo_T.copy()
+df_zscore[num_cols] = scaler.fit_transform(df_geo_T[num_cols])
+
+# --- Min-max ---
+minmax = MinMaxScaler()
+df_minmax = df_geo_T.copy()
+df_minmax[num_cols] = minmax.fit_transform(df_geo_T[num_cols])
+
+print("\nZ-score:\n", df_zscore.head())
+print("\nMin-max:\n", df_minmax.head())
+
 # Escalamiento min max y z score
 for cv, sig, nameip in zip(
     results_df.critical_values, results_df.statistic, results_df.column
-): 
+):
     xd = df_isotopes[nameip].dropna()
     X = xd.index.to_numpy(dtype=float)
     y = xd.to_numpy(dtype=float)
- 
-        # Columna actual
+
+    # Columna actual
     col = df_isotopes[nameip]
     data = col.dropna()
 
     # Calcular parámetros de la distribución normal
     mu, sigma = data.mean(), data.std()
 
-     # z scores
-    data_z = (data-mu)/sigma 
+    # z scores
+    data_z = (data - mu) / sigma
 
-     # min max 
-    data_minMax = (data-min(data))/(max(data)-min(data)) 
+    # min max
+    data_minMax = (data - min(data)) / (max(data) - min(data))
 
-        # Grafica z score y minmax
-    plt.scatter(X, data_minMax, alpha=0.6, label = "min-max")
-    plt.scatter(X, data_z, alpha=0.6, label = "z-score")
+    # Grafica z score y minmax
+    plt.scatter(X, data_minMax, alpha=0.6, label="min-max")
+    plt.scatter(X, data_z, alpha=0.6, label="z-score")
     plt.title(f"Escalamiento de {nameip}")
     plt.ylabel("δ¹³C escalado")
     plt.xlabel("Año")
     plt.legend()
-    plt.show() 
+    plt.show()
 
-        # Grafica solo min max 
+    # Grafica solo min max
     plt.scatter(X, data_minMax, alpha=0.6)
     plt.title(f"Min max de {nameip}")
     plt.ylabel("δ¹³C escalado")
     plt.xlabel("Año")
     plt.legend()
-    plt.show()  
+    plt.show()
 
 # 5. Visualizacion exploratoria
 
